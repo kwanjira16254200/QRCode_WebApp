@@ -1,0 +1,238 @@
+import { nanoid } from 'nanoid';
+import { supabase } from '../config/supabase.js';
+
+export const createLink = async (req, res) => {
+  try {
+    const { title, originalUrl } = req.body;
+
+    if (!title || !originalUrl) {
+      return res.status(400).json({ message: 'Title and URL are required' });
+    }
+
+    const shortCode = nanoid(8);
+
+    const { data: link, error } = await supabase
+      .from('links')
+      .insert([{
+        user_id: req.user.id,
+        title,
+        original_url: originalUrl,
+        short_code: shortCode
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error:', error);
+      return res.status(500).json({ message: 'Server error' });
+    }
+
+    res.status(201).json({
+      _id: link.id,
+      title: link.title,
+      originalUrl: link.original_url,
+      shortCode: link.short_code,
+      clicks: link.clicks,
+      isActive: link.is_active,
+      createdAt: link.created_at
+    });
+  } catch (error) {
+    console.error('Create link error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const getLinks = async (req, res) => {
+  try {
+    const { data: links, error } = await supabase
+      .from('links')
+      .select('*')
+      .eq('user_id', req.user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Supabase error:', error);
+      return res.status(500).json({ message: 'Server error' });
+    }
+
+    const formattedLinks = links.map(link => ({
+      _id: link.id,
+      title: link.title,
+      originalUrl: link.original_url,
+      shortCode: link.short_code,
+      clicks: link.clicks,
+      isActive: link.is_active,
+      createdAt: link.created_at,
+      updatedAt: link.updated_at
+    }));
+
+    res.json(formattedLinks);
+  } catch (error) {
+    console.error('Get links error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const getLink = async (req, res) => {
+  try {
+    const { data: link, error } = await supabase
+      .from('links')
+      .select('*')
+      .eq('id', req.params.id)
+      .eq('user_id', req.user.id)
+      .single();
+
+    if (error || !link) {
+      return res.status(404).json({ message: 'Link not found' });
+    }
+
+    res.json({
+      _id: link.id,
+      title: link.title,
+      originalUrl: link.original_url,
+      shortCode: link.short_code,
+      clicks: link.clicks,
+      isActive: link.is_active,
+      createdAt: link.created_at,
+      updatedAt: link.updated_at
+    });
+  } catch (error) {
+    console.error('Get link error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const updateLink = async (req, res) => {
+  try {
+    const { title, originalUrl, isActive } = req.body;
+
+    const updateData = {};
+    if (title) updateData.title = title;
+    if (originalUrl) updateData.original_url = originalUrl;
+    if (typeof isActive !== 'undefined') updateData.is_active = isActive;
+    updateData.updated_at = new Date().toISOString();
+
+    const { data: link, error } = await supabase
+      .from('links')
+      .update(updateData)
+      .eq('id', req.params.id)
+      .eq('user_id', req.user.id)
+      .select()
+      .single();
+
+    if (error || !link) {
+      return res.status(404).json({ message: 'Link not found' });
+    }
+
+    res.json({
+      _id: link.id,
+      title: link.title,
+      originalUrl: link.original_url,
+      shortCode: link.short_code,
+      clicks: link.clicks,
+      isActive: link.is_active,
+      createdAt: link.created_at,
+      updatedAt: link.updated_at
+    });
+  } catch (error) {
+    console.error('Update link error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const deleteLink = async (req, res) => {
+  try {
+    const { error } = await supabase
+      .from('links')
+      .delete()
+      .eq('id', req.params.id)
+      .eq('user_id', req.user.id);
+
+    if (error) {
+      return res.status(404).json({ message: 'Link not found' });
+    }
+
+    res.json({ message: 'Link deleted successfully' });
+  } catch (error) {
+    console.error('Delete link error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const getLinkAnalytics = async (req, res) => {
+  try {
+    const { data: link, error: linkError } = await supabase
+      .from('links')
+      .select('*')
+      .eq('id', req.params.id)
+      .eq('user_id', req.user.id)
+      .single();
+
+    if (linkError || !link) {
+      return res.status(404).json({ message: 'Link not found' });
+    }
+
+    const { data: analytics, error: analyticsError } = await supabase
+      .from('analytics')
+      .select('*')
+      .eq('link_id', req.params.id)
+      .order('timestamp', { ascending: false })
+      .limit(100);
+
+    const { data: dailyData } = await supabase
+      .rpc('get_daily_stats', { link_uuid: req.params.id });
+
+    const dailyStats = dailyData || [];
+
+    res.json({
+      totalClicks: link.clicks,
+      recentClicks: analytics || [],
+      dailyStats: dailyStats.slice(0, 30)
+    });
+  } catch (error) {
+    console.error('Get analytics error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const getDashboardStats = async (req, res) => {
+  try {
+    const { count: totalLinks } = await supabase
+      .from('links')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', req.user.id);
+
+    const { data: links } = await supabase
+      .from('links')
+      .select('id, clicks')
+      .eq('user_id', req.user.id);
+
+    const totalClicks = links?.reduce((sum, link) => sum + link.clicks, 0) || 0;
+
+    const last7Days = new Date();
+    last7Days.setDate(last7Days.getDate() - 7);
+
+    const { count: weeklyClicks } = await supabase
+      .from('analytics')
+      .select('*', { count: 'exact', head: true })
+      .in('link_id', links?.map(l => l.id) || [])
+      .gte('timestamp', last7Days.toISOString());
+
+    const { data: recentAnalytics } = await supabase
+      .from('analytics')
+      .select('*, links(title, short_code)')
+      .in('link_id', links?.map(l => l.id) || [])
+      .order('timestamp', { ascending: false })
+      .limit(10);
+
+    res.json({
+      totalLinks: totalLinks || 0,
+      totalClicks,
+      weeklyClicks: weeklyClicks || 0,
+      recentActivity: recentAnalytics || []
+    });
+  } catch (error) {
+    console.error('Get dashboard stats error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
