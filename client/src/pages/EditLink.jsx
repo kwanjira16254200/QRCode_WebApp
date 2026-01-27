@@ -144,6 +144,9 @@ const EditLink = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Short URL
                 </label>
+                <p className="text-xs text-gray-500 mb-2">
+                  This is the shortened link that redirects to your destination URL. Use this URL in your QR code.
+                </p>
                 <div className="flex items-center space-x-2">
                   <input
                     type="text"

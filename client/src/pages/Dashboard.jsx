@@ -204,16 +204,65 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
   const [isDynamic, setIsDynamic] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [validating, setValidating] = useState(false);
+
+  const normalizeUrl = (inputUrl) => {
+    let normalized = inputUrl.trim();
+    
+    // If no protocol, add https://
+    if (!normalized.match(/^https?:\/\//i)) {
+      // If it looks like just a domain (no spaces, has dot)
+      if (!normalized.includes(' ') && normalized.includes('.')) {
+        // Check if it already starts with www.
+        if (normalized.startsWith('www.')) {
+          normalized = 'https://' + normalized;
+        } else {
+          normalized = 'https://www.' + normalized;
+        }
+      } else {
+        normalized = 'https://' + normalized;
+      }
+    }
+    
+    return normalized;
+  };
+
+  const validateUrl = (urlToValidate) => {
+    try {
+      const urlObj = new URL(urlToValidate);
+      // Check if it has a valid protocol and hostname
+      if ((urlObj.protocol === 'http:' || urlObj.protocol === 'https:') && urlObj.hostname) {
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
+    setValidating(true);
 
     try {
+      // Normalize the URL
+      const normalizedUrl = normalizeUrl(url);
+      
+      setValidating(false);
+      
+      // Validate URL format
+      const isValid = validateUrl(normalizedUrl);
+      if (!isValid) {
+        setError('Invalid URL format. Please enter a valid URL (e.g., google.com or https://example.com)');
+        setLoading(false);
+        return;
+      }
+
       await api.post('/links', {
         title,
-        originalUrl: url,
+        originalUrl: normalizedUrl,
         isDynamic
       });
       onSuccess();
