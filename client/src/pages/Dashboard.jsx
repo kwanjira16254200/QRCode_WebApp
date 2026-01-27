@@ -204,35 +204,34 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
   const [isDynamic, setIsDynamic] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [validating, setValidating] = useState(false);
+  const [urlPreview, setUrlPreview] = useState('');
 
   const normalizeUrl = (inputUrl) => {
     let normalized = inputUrl.trim();
     
+    // If empty, return as is
+    if (!normalized) return '';
+    
     // If no protocol, add https://
     if (!normalized.match(/^https?:\/\//i)) {
-      // If it looks like just a domain (no spaces, has dot)
-      if (!normalized.includes(' ') && normalized.includes('.')) {
-        // Check if it already starts with www.
-        if (normalized.startsWith('www.')) {
-          normalized = 'https://' + normalized;
-        } else {
-          normalized = 'https://www.' + normalized;
-        }
-      } else {
-        normalized = 'https://' + normalized;
-      }
+      normalized = 'https://' + normalized;
     }
     
     return normalized;
   };
 
   const validateUrl = (urlToValidate) => {
+    if (!urlToValidate) return false;
+    
     try {
       const urlObj = new URL(urlToValidate);
+      
       // Check if it has a valid protocol and hostname
       if ((urlObj.protocol === 'http:' || urlObj.protocol === 'https:') && urlObj.hostname) {
-        return true;
+        // Check if hostname has at least one dot (e.g., example.com)
+        if (urlObj.hostname.includes('.')) {
+          return true;
+        }
       }
       return false;
     } catch {
@@ -240,26 +239,60 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
     }
   };
 
+  const handleUrlChange = (e) => {
+    const inputUrl = e.target.value;
+    setUrl(inputUrl);
+    
+    // Show preview of normalized URL
+    if (inputUrl.trim()) {
+      const normalized = normalizeUrl(inputUrl);
+      setUrlPreview(normalized);
+      
+      // Validate and show error if invalid
+      if (!validateUrl(normalized)) {
+        setError('URL ไม่ถูกต้อง กรุณากรอก URL ที่ถูกต้อง เช่น example.com หรือ www.example.com');
+      } else {
+        setError('');
+      }
+    } else {
+      setUrlPreview('');
+      setError('');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    setValidating(true);
 
     try {
       // Normalize the URL
       const normalizedUrl = normalizeUrl(url);
       
-      setValidating(false);
-      
       // Validate URL format
       const isValid = validateUrl(normalizedUrl);
       if (!isValid) {
-        setError('Invalid URL format. Please enter a valid URL (e.g., google.com or https://example.com)');
+        setError('URL ไม่ถูกต้อง กรุณากรอก URL ที่ถูกต้อง เช่น example.com หรือ https://example.com');
         setLoading(false);
         return;
       }
 
+      // Check if URL is actually reachable
+      try {
+        const validationResponse = await api.post('/validate/url', { url: normalizedUrl });
+        if (!validationResponse.data.valid) {
+          setError(validationResponse.data.message || 'ไม่สามารถเข้าถึง URL นี้ได้');
+          setLoading(false);
+          return;
+        }
+      } catch (validationError) {
+        const errorMessage = validationError.response?.data?.message || 'ไม่สามารถเข้าถึง URL นี้ได้ กรุณาตรวจสอบว่า URL ถูกต้องและเว็บไซต์ทำงานอยู่';
+        setError(errorMessage);
+        setLoading(false);
+        return;
+      }
+
+      // Create QR code if validation passes
       await api.post('/links', {
         title,
         originalUrl: normalizedUrl,
@@ -267,7 +300,7 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
       });
       onSuccess();
     } catch (err) {
-      setError(err.response?.data?.message || 'Creation failed');
+      setError(err.response?.data?.message || 'สร้าง QR Code ไม่สำเร็จ');
     } finally {
       setLoading(false);
     }
@@ -304,13 +337,19 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
               Destination URL
             </label>
             <input
-              type="url"
+              type="text"
               value={url}
-              onChange={(e) => setUrl(e.target.value)}
+              onChange={handleUrlChange}
               className="input"
-              placeholder="https://example.com"
+              placeholder="example.com หรือ www.example.com"
               required
             />
+            {urlPreview && (
+              <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-sm">
+                <span className="text-gray-600">จะบันทึกเป็น: </span>
+                <span className="text-blue-700 font-medium">{urlPreview}</span>
+              </div>
+            )}
           </div>
 
           <div className="border border-gray-200 rounded-lg p-4">
