@@ -1,5 +1,7 @@
 {
   "version": 2,
+  "buildCommand": "npm install",
+  "installCommand": "npm install",
   "builds": [
     {
       "src": "server/index.js",
@@ -13,6 +15,10 @@
     },
     {
       "src": "/r/(.*)",
+      "dest": "server/index.js"
+    },
+    {
+      "src": "/(.*)",
       "dest": "server/index.js"
     }
   ]
