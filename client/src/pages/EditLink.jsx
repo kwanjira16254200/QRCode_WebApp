@@ -35,14 +35,109 @@ const EditLink = () => {
     }
   };
 
+  const normalizeUrl = (inputUrl) => {
+    let normalized = inputUrl.trim();
+    
+    // If empty, return as is
+    if (!normalized) return '';
+    
+    // If no protocol, add https://
+    if (!normalized.match(/^https?:\/\//i)) {
+      normalized = 'https://' + normalized;
+    }
+    
+    return normalized;
+  };
+
+  const validateUrl = (urlToValidate) => {
+    if (!urlToValidate) return false;
+    
+    try {
+      const urlObj = new URL(urlToValidate);
+      
+      // Check if it has a valid protocol and hostname
+      if ((urlObj.protocol === 'http:' || urlObj.protocol === 'https:') && urlObj.hostname) {
+        // Check if hostname has at least one dot
+        if (urlObj.hostname.includes('.')) {
+          // Split domain into parts
+          const parts = urlObj.hostname.split('.');
+          const domainName = parts[parts.length - 2]; // e.g., "google" from "google.com"
+          const tld = parts[parts.length - 1]; // e.g., "com" from "google.com"
+          
+          // Domain name must contain at least one letter (not just numbers)
+          if (!/[a-zA-Z]/.test(domainName)) {
+            return false;
+          }
+          
+          // TLD must be letters only and at least 2 characters
+          if (!/^[a-zA-Z]{2,}$/.test(tld)) {
+            return false;
+          }
+          
+          // Check if hostname looks like a valid domain
+          const domainPattern = /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?(\.[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?)*\.[a-zA-Z]{2,}$/;
+          if (domainPattern.test(urlObj.hostname)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  };
+
+  const checkUrlReachable = async (urlToCheck) => {
+    return new Promise((resolve) => {
+      const timeout = setTimeout(() => {
+        resolve(false); // Timeout - assume unreachable
+      }, 5000);
+
+      // Try to fetch with no-cors mode
+      fetch(urlToCheck, { 
+        method: 'GET', 
+        mode: 'no-cors',
+        cache: 'no-cache'
+      })
+        .then(() => {
+          clearTimeout(timeout);
+          resolve(true); // URL is reachable
+        })
+        .catch(() => {
+          clearTimeout(timeout);
+          resolve(false); // URL is not reachable
+        });
+    });
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
     setSaving(true);
 
     try {
+      // Normalize and validate URL
+      const normalizedUrl = normalizeUrl(originalUrl);
+      
+      // Validate URL format
+      const isValid = validateUrl(normalizedUrl);
+      if (!isValid) {
+        alert('Invalid URL. Please enter a valid URL such as example.com or https://example.com');
+        setSaving(false);
+        return;
+      }
+
+      // Check if URL is actually reachable
+      const isReachable = await checkUrlReachable(normalizedUrl);
+      
+      if (!isReachable) {
+        alert('Unable to access this URL. Please check that the website exists and is working');
+        setSaving(false);
+        return;
+      }
+
       await api.put(`/links/${id}`, {
         title,
-        originalUrl,
+        originalUrl: normalizedUrl,
         isActive
       });
       alert('Saved successfully');

@@ -228,9 +228,28 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
       
       // Check if it has a valid protocol and hostname
       if ((urlObj.protocol === 'http:' || urlObj.protocol === 'https:') && urlObj.hostname) {
-        // Check if hostname has at least one dot (e.g., example.com)
+        // Check if hostname has at least one dot
         if (urlObj.hostname.includes('.')) {
-          return true;
+          // Split domain into parts
+          const parts = urlObj.hostname.split('.');
+          const domainName = parts[parts.length - 2]; // e.g., "google" from "google.com"
+          const tld = parts[parts.length - 1]; // e.g., "com" from "google.com"
+          
+          // Domain name must contain at least one letter (not just numbers)
+          if (!/[a-zA-Z]/.test(domainName)) {
+            return false;
+          }
+          
+          // TLD must be letters only and at least 2 characters
+          if (!/^[a-zA-Z]{2,}$/.test(tld)) {
+            return false;
+          }
+          
+          // Check if hostname looks like a valid domain
+          const domainPattern = /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?(\.[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?)*\.[a-zA-Z]{2,}$/;
+          if (domainPattern.test(urlObj.hostname)) {
+            return true;
+          }
         }
       }
       return false;
@@ -260,10 +279,34 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
     }
   };
 
+  const checkUrlReachable = async (urlToCheck) => {
+    return new Promise((resolve) => {
+      const timeout = setTimeout(() => {
+        resolve(false); // Timeout - assume unreachable
+      }, 5000);
+
+      // Try to fetch with no-cors mode
+      fetch(urlToCheck, { 
+        method: 'GET', 
+        mode: 'no-cors',
+        cache: 'no-cache'
+      })
+        .then(() => {
+          clearTimeout(timeout);
+          resolve(true); // URL is reachable
+        })
+        .catch(() => {
+          clearTimeout(timeout);
+          resolve(false); // URL is not reachable
+        });
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
+    setValidating(true);
 
     try {
       // Normalize the URL
@@ -274,25 +317,21 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
       if (!isValid) {
         setError('Invalid URL. Please enter a valid URL such as example.com or https://example.com');
         setLoading(false);
+        setValidating(false);
         return;
       }
 
       // Check if URL is actually reachable
-      try {
-        const validationResponse = await api.post('/validate/url', { url: normalizedUrl });
-        if (!validationResponse.data.valid) {
-          setError(validationResponse.data.message || 'Unable to access this URL');
-          setLoading(false);
-          return;
-        }
-      } catch (validationError) {
-        const errorMessage = validationError.response?.data?.message || 'Unable to access this URL. Please check that the URL is correct and the website is working';
-        setError(errorMessage);
+      const isReachable = await checkUrlReachable(normalizedUrl);
+      setValidating(false);
+      
+      if (!isReachable) {
+        setError('Unable to access this URL. Please check that the website exists and is working');
         setLoading(false);
         return;
       }
 
-      // Create QR code if validation passes
+      // Create QR code
       await api.post('/links', {
         title,
         originalUrl: normalizedUrl,
@@ -303,6 +342,7 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
       setError(err.response?.data?.message || 'Failed to create QR Code');
     } finally {
       setLoading(false);
+      setValidating(false);
     }
   };
 
