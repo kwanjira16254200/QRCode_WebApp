@@ -3,7 +3,7 @@ import { supabase } from '../config/supabase.js';
 
 export const createLink = async (req, res) => {
   try {
-    const { title, originalUrl } = req.body;
+    const { title, originalUrl, isDynamic = true } = req.body;
 
     if (!title || !originalUrl) {
       return res.status(400).json({ message: 'Title and URL are required' });
@@ -17,7 +17,8 @@ export const createLink = async (req, res) => {
         user_id: req.user.id,
         title,
         original_url: originalUrl,
-        short_code: shortCode
+        short_code: shortCode,
+        is_dynamic: isDynamic
       }])
       .select()
       .single();
@@ -34,6 +35,7 @@ export const createLink = async (req, res) => {
       shortCode: link.short_code,
       clicks: link.clicks,
       isActive: link.is_active,
+      isDynamic: link.is_dynamic,
       createdAt: link.created_at
     });
   } catch (error) {
@@ -62,6 +64,7 @@ export const getLinks = async (req, res) => {
       shortCode: link.short_code,
       clicks: link.clicks,
       isActive: link.is_active,
+      isDynamic: link.is_dynamic,
       createdAt: link.created_at,
       updatedAt: link.updated_at
     }));
@@ -93,6 +96,7 @@ export const getLink = async (req, res) => {
       shortCode: link.short_code,
       clicks: link.clicks,
       isActive: link.is_active,
+      isDynamic: link.is_dynamic,
       createdAt: link.created_at,
       updatedAt: link.updated_at
     });
@@ -105,6 +109,25 @@ export const getLink = async (req, res) => {
 export const updateLink = async (req, res) => {
   try {
     const { title, originalUrl, isActive } = req.body;
+
+    // ตรวจสอบว่า link เป็น dynamic หรือไม่
+    const { data: existingLink } = await supabase
+      .from('links')
+      .select('is_dynamic')
+      .eq('id', req.params.id)
+      .eq('user_id', req.user.id)
+      .single();
+
+    if (!existingLink) {
+      return res.status(404).json({ message: 'Link not found' });
+    }
+
+    // ถ้าเป็น Static QR และพยายามแก้ไข URL
+    if (!existingLink.is_dynamic && originalUrl) {
+      return res.status(400).json({ 
+        message: 'ไม่สามารถแก้ไข URL ของ Static QR Code ได้' 
+      });
+    }
 
     const updateData = {};
     if (title) updateData.title = title;
@@ -131,6 +154,7 @@ export const updateLink = async (req, res) => {
       shortCode: link.short_code,
       clicks: link.clicks,
       isActive: link.is_active,
+      isDynamic: link.is_dynamic,
       createdAt: link.created_at,
       updatedAt: link.updated_at
     });

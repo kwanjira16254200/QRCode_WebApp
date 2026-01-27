@@ -129,7 +129,14 @@ const Dashboard = () => {
                     />
                   </div>
                   
-                  <h3 className="font-semibold text-gray-900 mb-2 truncate">{link.title}</h3>
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-semibold text-gray-900 truncate flex-1">{link.title}</h3>
+                    {link.isDynamic ? (
+                      <span className="ml-2 px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Dynamic</span>
+                    ) : (
+                      <span className="ml-2 px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded-full">Static</span>
+                    )}
+                  </div>
                   
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center text-sm text-gray-600">
@@ -194,6 +201,7 @@ const Dashboard = () => {
 const CreateLinkModal = ({ onClose, onSuccess }) => {
   const [title, setTitle] = useState('');
   const [url, setUrl] = useState('');
+  const [isDynamic, setIsDynamic] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -205,7 +213,8 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
     try {
       await api.post('/links', {
         title,
-        originalUrl: url
+        originalUrl: url,
+        isDynamic
       });
       onSuccess();
     } catch (err) {
@@ -253,6 +262,27 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
               placeholder="https://example.com"
               required
             />
+          </div>
+
+          <div className="border border-gray-200 rounded-lg p-4">
+            <label className="flex items-start space-x-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isDynamic}
+                onChange={(e) => setIsDynamic(e.target.checked)}
+                className="mt-1 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+              />
+              <div className="flex-1">
+                <div className="font-medium text-gray-900">Dynamic QR Code</div>
+                <div className="text-sm text-gray-600 mt-1">
+                  {isDynamic ? (
+                    <span className="text-green-600">✓ สามารถแก้ไข URL ได้ภายหลัง (แนะนำ)</span>
+                  ) : (
+                    <span className="text-orange-600">⚠ ไม่สามารถแก้ไข URL ได้ (Static QR)</span>
+                  )}
+                </div>
+              </div>
+            </label>
           </div>
 
           <div className="flex space-x-3 pt-4">

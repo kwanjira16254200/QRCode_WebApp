@@ -125,11 +125,17 @@ const EditLink = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   URL ปลายทาง
                 </label>
+                {link?.isDynamic === false && (
+                  <div className="mb-2 p-3 bg-orange-50 border border-orange-200 rounded-lg text-orange-700 text-sm">
+                    ⚠ นี่คือ Static QR Code - ไม่สามารถแก้ไข URL ได้
+                  </div>
+                )}
                 <input
                   type="url"
                   value={originalUrl}
                   onChange={(e) => setOriginalUrl(e.target.value)}
                   className="input"
+                  disabled={link?.isDynamic === false}
                   required
                 />
               </div>
