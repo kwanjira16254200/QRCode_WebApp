@@ -1,7 +1,5 @@
 {
   "version": 2,
-  "buildCommand": "npm install",
-  "installCommand": "npm install",
   "builds": [
     {
       "src": "server/index.js",
@@ -11,15 +9,28 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "server/index.js"
+      "dest": "server/index.js",
+      "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     },
     {
       "src": "/r/(.*)",
-      "dest": "server/index.js"
+      "dest": "server/index.js",
+      "methods": ["GET", "OPTIONS"]
     },
     {
       "src": "/(.*)",
       "dest": "server/index.js"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Credentials", "value": "true" },
+        { "key": "Access-Control-Allow-Origin", "value": "https://qrcode-webapp.web.app" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
+        { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization" }
+      ]
     }
   ]
 }
