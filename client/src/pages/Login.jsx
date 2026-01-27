@@ -20,7 +20,7 @@ const Login = () => {
       await login(email, password);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'เข้าสู่ระบบไม่สำเร็จ');
+      setError(err.response?.data?.message || 'Login failed');
     } finally {
       setLoading(false);
     }
@@ -33,7 +33,7 @@ const Login = () => {
           <div className="flex justify-center mb-4">
             <QrCode className="w-16 h-16 text-primary-600" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">เข้าสู่ระบบ</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Sign In</h1>
           <p className="text-gray-600 mt-2">Dynamic QR Code Generator</p>
         </div>
 
@@ -48,7 +48,7 @@ const Login = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                อีเมล
+                Email
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -65,7 +65,7 @@ const Login = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                รหัสผ่าน
+                Password
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -85,15 +85,15 @@ const Login = () => {
               disabled={loading}
               className="w-full btn btn-primary py-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
+              {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
 
           <div className="mt-6 text-center">
             <p className="text-gray-600">
-              ยังไม่มีบัญชี?{' '}
+              Don't have an account?{' '}
               <Link to="/register" className="text-primary-600 hover:text-primary-700 font-medium">
-                สมัครสมาชิก
+                Sign Up
               </Link>
             </p>
           </div>

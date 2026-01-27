@@ -30,14 +30,14 @@ const Dashboard = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('คุณต้องการลบ QR Code นี้หรือไม่?')) return;
+    if (!window.confirm('Are you sure you want to delete this QR Code?')) return;
 
     try {
       await api.delete(`/links/${id}`);
       fetchData();
     } catch (error) {
       console.error('Error deleting link:', error);
-      alert('ลบไม่สำเร็จ');
+      alert('Delete failed');
     }
   };
 
@@ -59,14 +59,14 @@ const Dashboard = () => {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-600 mt-1">จัดการ QR Code ของคุณ</p>
+            <p className="text-gray-600 mt-1">Manage your QR Codes</p>
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
             className="btn btn-primary flex items-center space-x-2"
           >
             <Plus className="w-5 h-5" />
-            <span>สร้าง QR Code</span>
+            <span>Create QR Code</span>
           </button>
         </div>
 
@@ -74,7 +74,7 @@ const Dashboard = () => {
           <div className="card">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm">QR Code ทั้งหมด</p>
+                <p className="text-gray-600 text-sm">Total QR Codes</p>
                 <p className="text-3xl font-bold text-gray-900 mt-1">{stats?.totalLinks || 0}</p>
               </div>
               <QrCode className="w-12 h-12 text-primary-600" />
@@ -84,7 +84,7 @@ const Dashboard = () => {
           <div className="card">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm">คลิกทั้งหมด</p>
+                <p className="text-gray-600 text-sm">Total Clicks</p>
                 <p className="text-3xl font-bold text-gray-900 mt-1">{stats?.totalClicks || 0}</p>
               </div>
               <MousePointerClick className="w-12 h-12 text-green-600" />
@@ -94,7 +94,7 @@ const Dashboard = () => {
           <div className="card">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm">คลิก 7 วันล่าสุด</p>
+                <p className="text-gray-600 text-sm">Last 7 Days</p>
                 <p className="text-3xl font-bold text-gray-900 mt-1">{stats?.weeklyClicks || 0}</p>
               </div>
               <TrendingUp className="w-12 h-12 text-blue-600" />
@@ -103,17 +103,17 @@ const Dashboard = () => {
         </div>
 
         <div className="card">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">QR Code ของคุณ</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Your QR Codes</h2>
           
           {links.length === 0 ? (
             <div className="text-center py-12">
               <QrCode className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600 mb-4">คุณยังไม่มี QR Code</p>
+              <p className="text-gray-600 mb-4">You don't have any QR Codes yet</p>
               <button
                 onClick={() => setShowCreateModal(true)}
                 className="btn btn-primary"
               >
-                สร้าง QR Code แรกของคุณ
+                Create your first QR Code
               </button>
             </div>
           ) : (
@@ -152,7 +152,7 @@ const Dashboard = () => {
                     </div>
                     <div className="flex items-center text-sm text-gray-600">
                       <MousePointerClick className="w-4 h-4 mr-2" />
-                      <span>{link.clicks} คลิก</span>
+                      <span>{link.clicks} clicks</span>
                     </div>
                   </div>
 
@@ -162,14 +162,14 @@ const Dashboard = () => {
                       className="flex-1 btn btn-secondary text-sm flex items-center justify-center space-x-1"
                     >
                       <Edit className="w-4 h-4" />
-                      <span>แก้ไข</span>
+                      <span>Edit</span>
                     </Link>
                     <Link
                       to={`/analytics/${link._id}`}
                       className="flex-1 btn btn-secondary text-sm flex items-center justify-center space-x-1"
                     >
                       <BarChart3 className="w-4 h-4" />
-                      <span>สถิติ</span>
+                      <span>Analytics</span>
                     </Link>
                     <button
                       onClick={() => handleDelete(link._id)}
@@ -218,7 +218,7 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
       });
       onSuccess();
     } catch (err) {
-      setError(err.response?.data?.message || 'สร้างไม่สำเร็จ');
+      setError(err.response?.data?.message || 'Creation failed');
     } finally {
       setLoading(false);
     }
@@ -227,7 +227,7 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-xl max-w-md w-full p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">สร้าง QR Code ใหม่</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Create New QR Code</h2>
         
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
@@ -238,21 +238,21 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              ชื่อ QR Code
+              QR Code Name
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="input"
-              placeholder="เช่น เว็บไซต์ของฉัน"
+              placeholder="e.g. My Website"
               required
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              URL ปลายทาง
+              Destination URL
             </label>
             <input
               type="url"
@@ -276,9 +276,9 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
                 <div className="font-medium text-gray-900">Dynamic QR Code</div>
                 <div className="text-sm text-gray-600 mt-1">
                   {isDynamic ? (
-                    <span className="text-green-600">✓ สามารถแก้ไข URL ได้ภายหลัง (แนะนำ)</span>
+                    <span className="text-green-600">✓ Can edit URL later (Recommended)</span>
                   ) : (
-                    <span className="text-orange-600">⚠ ไม่สามารถแก้ไข URL ได้ (Static QR)</span>
+                    <span className="text-orange-600">⚠ Cannot edit URL (Static QR)</span>
                   )}
                 </div>
               </div>
@@ -291,14 +291,14 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
               onClick={onClose}
               className="flex-1 btn btn-secondary"
             >
-              ยกเลิก
+              Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
               className="flex-1 btn btn-primary disabled:opacity-50"
             >
-              {loading ? 'กำลังสร้าง...' : 'สร้าง'}
+              {loading ? 'Creating...' : 'Create'}
             </button>
           </div>
         </form>

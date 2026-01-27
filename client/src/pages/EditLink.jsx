@@ -28,7 +28,7 @@ const EditLink = () => {
       setIsActive(data.isActive);
     } catch (error) {
       console.error('Error fetching link:', error);
-      alert('ไม่พบ QR Code นี้');
+      alert('QR Code not found');
       navigate('/dashboard');
     } finally {
       setLoading(false);
@@ -45,11 +45,11 @@ const EditLink = () => {
         originalUrl,
         isActive
       });
-      alert('บันทึกสำเร็จ');
+      alert('Saved successfully');
       navigate('/dashboard');
     } catch (error) {
       console.error('Error updating link:', error);
-      alert('บันทึกไม่สำเร็จ');
+      alert('Save failed');
     } finally {
       setSaving(false);
     }
@@ -100,17 +100,17 @@ const EditLink = () => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link to="/dashboard" className="inline-flex items-center text-primary-600 hover:text-primary-700 mb-6">
           <ArrowLeft className="w-5 h-5 mr-2" />
-          กลับไปหน้า Dashboard
+          Back to Dashboard
         </Link>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="card">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">แก้ไข QR Code</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Edit QR Code</h2>
 
             <form onSubmit={handleSave} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  ชื่อ QR Code
+                  QR Code Name
                 </label>
                 <input
                   type="text"
@@ -123,11 +123,11 @@ const EditLink = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  URL ปลายทาง
+                  Destination URL
                 </label>
                 {link?.isDynamic === false && (
                   <div className="mb-2 p-3 bg-orange-50 border border-orange-200 rounded-lg text-orange-700 text-sm">
-                    ⚠ นี่คือ Static QR Code - ไม่สามารถแก้ไข URL ได้
+                    ⚠ This is a Static QR Code - Cannot edit URL
                   </div>
                 )}
                 <input
@@ -170,7 +170,7 @@ const EditLink = () => {
                   className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
                 />
                 <label htmlFor="isActive" className="text-sm font-medium text-gray-700">
-                  เปิดใช้งาน QR Code
+                  Enable QR Code
                 </label>
               </div>
 
@@ -181,7 +181,7 @@ const EditLink = () => {
                   className="w-full btn btn-primary flex items-center justify-center space-x-2"
                 >
                   <Save className="w-5 h-5" />
-                  <span>{saving ? 'กำลังบันทึก...' : 'บันทึกการเปลี่ยนแปลง'}</span>
+                  <span>{saving ? 'Saving...' : 'Save Changes'}</span>
                 </button>
               </div>
             </form>
@@ -207,7 +207,7 @@ const EditLink = () => {
                   className="w-full btn btn-primary flex items-center justify-center space-x-2"
                 >
                   <Download className="w-5 h-5" />
-                  <span>ดาวน์โหลด QR Code</span>
+                  <span>Download QR Code</span>
                 </button>
 
                 <a
@@ -217,14 +217,14 @@ const EditLink = () => {
                   className="w-full btn btn-secondary flex items-center justify-center space-x-2"
                 >
                   <ExternalLink className="w-5 h-5" />
-                  <span>ทดสอบลิงก์</span>
+                  <span>Test Link</span>
                 </a>
               </div>
 
               <div className="w-full p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600 mb-2">สถิติ</p>
+                <p className="text-sm text-gray-600 mb-2">Statistics</p>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-700">จำนวนคลิก</span>
+                  <span className="text-gray-700">Total Clicks</span>
                   <span className="text-2xl font-bold text-primary-600">{link?.clicks || 0}</span>
                 </div>
               </div>

@@ -18,12 +18,12 @@ const Register = () => {
     setError('');
 
     if (password !== confirmPassword) {
-      setError('รหัสผ่านไม่ตรงกัน');
+      setError('Passwords do not match');
       return;
     }
 
     if (password.length < 6) {
-      setError('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
+      setError('Password must be at least 6 characters');
       return;
     }
 
@@ -33,7 +33,7 @@ const Register = () => {
       await register(name, email, password);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'สมัครสมาชิกไม่สำเร็จ');
+      setError(err.response?.data?.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
@@ -46,8 +46,8 @@ const Register = () => {
           <div className="flex justify-center mb-4">
             <QrCode className="w-16 h-16 text-primary-600" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">สมัครสมาชิก</h1>
-          <p className="text-gray-600 mt-2">สร้างบัญชีใหม่เพื่อเริ่มใช้งาน</p>
+          <h1 className="text-3xl font-bold text-gray-900">Sign Up</h1>
+          <p className="text-gray-600 mt-2">Create a new account to get started</p>
         </div>
 
         <div className="card">
@@ -61,7 +61,7 @@ const Register = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                ชื่อ
+                Name
               </label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -70,7 +70,7 @@ const Register = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="input pl-10"
-                  placeholder="ชื่อของคุณ"
+                  placeholder="Your name"
                   required
                 />
               </div>
@@ -78,7 +78,7 @@ const Register = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                อีเมล
+                Email
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -95,7 +95,7 @@ const Register = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                รหัสผ่าน
+                Password
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -112,7 +112,7 @@ const Register = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                ยืนยันรหัสผ่าน
+                Confirm Password
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -132,15 +132,15 @@ const Register = () => {
               disabled={loading}
               className="w-full btn btn-primary py-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'กำลังสมัครสมาชิก...' : 'สมัครสมาชิก'}
+              {loading ? 'Signing up...' : 'Sign Up'}
             </button>
           </form>
 
           <div className="mt-6 text-center">
             <p className="text-gray-600">
-              มีบัญชีอยู่แล้ว?{' '}
+              Already have an account?{' '}
               <Link to="/login" className="text-primary-600 hover:text-primary-700 font-medium">
-                เข้าสู่ระบบ
+                Sign In
               </Link>
             </p>
           </div>

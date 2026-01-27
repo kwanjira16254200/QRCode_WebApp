@@ -31,7 +31,7 @@ const Navbar = () => {
                 className="flex items-center space-x-2 text-gray-600 hover:text-red-600 transition-colors"
               >
                 <LogOut className="w-5 h-5" />
-                <span>ออกจากระบบ</span>
+                <span>Logout</span>
               </button>
             </div>
           )}
