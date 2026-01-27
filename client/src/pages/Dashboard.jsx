@@ -250,7 +250,7 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
       
       // Validate and show error if invalid
       if (!validateUrl(normalized)) {
-        setError('URL ไม่ถูกต้อง กรุณากรอก URL ที่ถูกต้อง เช่น example.com หรือ www.example.com');
+        setError('Invalid URL. Please enter a valid URL such as example.com or www.example.com');
       } else {
         setError('');
       }
@@ -272,7 +272,7 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
       // Validate URL format
       const isValid = validateUrl(normalizedUrl);
       if (!isValid) {
-        setError('URL ไม่ถูกต้อง กรุณากรอก URL ที่ถูกต้อง เช่น example.com หรือ https://example.com');
+        setError('Invalid URL. Please enter a valid URL such as example.com or https://example.com');
         setLoading(false);
         return;
       }
@@ -281,12 +281,12 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
       try {
         const validationResponse = await api.post('/validate/url', { url: normalizedUrl });
         if (!validationResponse.data.valid) {
-          setError(validationResponse.data.message || 'ไม่สามารถเข้าถึง URL นี้ได้');
+          setError(validationResponse.data.message || 'Unable to access this URL');
           setLoading(false);
           return;
         }
       } catch (validationError) {
-        const errorMessage = validationError.response?.data?.message || 'ไม่สามารถเข้าถึง URL นี้ได้ กรุณาตรวจสอบว่า URL ถูกต้องและเว็บไซต์ทำงานอยู่';
+        const errorMessage = validationError.response?.data?.message || 'Unable to access this URL. Please check that the URL is correct and the website is working';
         setError(errorMessage);
         setLoading(false);
         return;
@@ -300,7 +300,7 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
       });
       onSuccess();
     } catch (err) {
-      setError(err.response?.data?.message || 'สร้าง QR Code ไม่สำเร็จ');
+      setError(err.response?.data?.message || 'Failed to create QR Code');
     } finally {
       setLoading(false);
     }
@@ -341,12 +341,12 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
               value={url}
               onChange={handleUrlChange}
               className="input"
-              placeholder="example.com หรือ www.example.com"
+              placeholder="example.com or www.example.com"
               required
             />
             {urlPreview && (
               <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-sm">
-                <span className="text-gray-600">จะบันทึกเป็น: </span>
+                <span className="text-gray-600">Will be saved as: </span>
                 <span className="text-blue-700 font-medium">{urlPreview}</span>
               </div>
             )}
@@ -362,18 +362,14 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
               />
               <div className="flex-1">
                 <div className="font-medium text-gray-900">Dynamic QR Code</div>
-                <div className="text-sm text-gray-600 mt-1">
-                  {isDynamic ? (
-                    <span className="text-green-600">✓ Can edit URL later (Recommended)</span>
-                  ) : (
-                    <span className="text-orange-600">⚠ Cannot edit URL (Static QR)</span>
-                  )}
-                </div>
+                <p className="text-sm text-gray-600 mt-1">
+                  Can edit URL later (Recommended)
+                </p>
               </div>
             </label>
           </div>
 
-          <div className="flex space-x-3 pt-4">
+          <div className="flex space-x-3">
             <button
               type="button"
               onClick={onClose}
@@ -384,7 +380,7 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 btn btn-primary disabled:opacity-50"
+              className="flex-1 btn btn-primary"
             >
               {loading ? 'Creating...' : 'Create'}
             </button>

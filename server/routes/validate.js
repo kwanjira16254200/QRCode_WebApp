@@ -12,7 +12,7 @@ router.post('/url', async (req, res) => {
     if (!url) {
       return res.status(400).json({ 
         valid: false, 
-        message: 'กรุณากรอก URL' 
+        message: 'Please enter a URL' 
       });
     }
 
@@ -23,7 +23,7 @@ router.post('/url', async (req, res) => {
     } catch (error) {
       return res.status(400).json({ 
         valid: false, 
-        message: 'URL ไม่ถูกต้อง' 
+        message: 'Invalid URL format' 
       });
     }
 
@@ -31,7 +31,7 @@ router.post('/url', async (req, res) => {
     if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
       return res.status(400).json({ 
         valid: false, 
-        message: 'รองรับเฉพาะ HTTP และ HTTPS เท่านั้น' 
+        message: 'Only HTTP and HTTPS protocols are supported' 
       });
     }
 
@@ -41,19 +41,19 @@ router.post('/url', async (req, res) => {
     if (isReachable) {
       return res.json({ 
         valid: true, 
-        message: 'URL ถูกต้องและเข้าถึงได้' 
+        message: 'URL is valid and reachable' 
       });
     } else {
       return res.status(400).json({ 
         valid: false, 
-        message: 'ไม่สามารถเข้าถึง URL นี้ได้ กรุณาตรวจสอบว่า URL ถูกต้องและเว็บไซต์ทำงานอยู่' 
+        message: 'Unable to access this URL. Please check that the URL is correct and the website is working' 
       });
     }
   } catch (error) {
     console.error('URL validation error:', error);
     return res.status(500).json({ 
       valid: false, 
-      message: 'เกิดข้อผิดพลาดในการตรวจสอบ URL' 
+      message: 'Error validating URL' 
     });
   }
 });
