@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
-import { Plus, QrCode, MousePointerClick, TrendingUp, ExternalLink, Edit, Trash2, BarChart3 } from 'lucide-react';
+import { Plus, QrCode, MousePointerClick, TrendingUp, ExternalLink, Edit, Trash2, BarChart3, Link2, FileText, Image as ImageIcon, Cloud } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 
 const Dashboard = () => {
@@ -215,6 +215,7 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
   const [url, setUrl] = useState('');
   const [text, setText] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [imageSource, setImageSource] = useState('upload'); // 'upload' or 'url'
   const [isDynamic, setIsDynamic] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -362,34 +363,48 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
         finalUrl = text.trim();
         setValidating(false);
       } else if (qrType === 'image') {
-        // For image type, validate the image URL
-        const normalizedImageUrl = normalizeUrl(imageUrl);
-        
-        const isValid = validateUrl(normalizedImageUrl);
-        if (!isValid) {
-          setError('Invalid image URL. Please enter a valid URL');
+        // For image type, check if it's a file upload (base64) or URL
+        if (!imageUrl) {
+          setError('Please upload an image or provide an image URL');
           setLoading(false);
           setValidating(false);
           return;
         }
 
-        const isReachable = await checkUrlReachable(normalizedImageUrl);
-        setValidating(false);
-        
-        if (!isReachable) {
-          setError('Unable to access this image URL');
-          setLoading(false);
-          return;
-        }
+        // If it's base64 data (uploaded file), use it directly
+        if (imageUrl.startsWith('data:')) {
+          finalUrl = imageUrl;
+          setValidating(false);
+        } else {
+          // If it's a URL, validate it
+          const normalizedImageUrl = normalizeUrl(imageUrl);
+          
+          const isValid = validateUrl(normalizedImageUrl);
+          if (!isValid) {
+            setError('Invalid image URL. Please enter a valid URL');
+            setLoading(false);
+            setValidating(false);
+            return;
+          }
 
-        finalUrl = normalizedImageUrl;
+          const isReachable = await checkUrlReachable(normalizedImageUrl);
+          setValidating(false);
+          
+          if (!isReachable) {
+            setError('Unable to access this image URL');
+            setLoading(false);
+            return;
+          }
+
+          finalUrl = normalizedImageUrl;
+        }
       }
 
       // Create QR code
       await api.post('/links', {
         title,
         originalUrl: finalUrl,
-        isDynamic: qrType === 'url' ? isDynamic : false, // Only URL type can be dynamic
+        isDynamic: isDynamic, // All types can be dynamic
         qrType: qrType
       });
       onSuccess();
@@ -427,7 +442,7 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
                     : 'border-gray-300 hover:border-gray-400'
                 }`}
               >
-                <div className="text-2xl mb-1">🔗</div>
+                <Link2 className="w-6 h-6 mx-auto mb-1" />
                 <div className="text-sm font-medium">Link</div>
               </button>
               <button
@@ -439,7 +454,7 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
                     : 'border-gray-300 hover:border-gray-400'
                 }`}
               >
-                <div className="text-2xl mb-1">📝</div>
+                <FileText className="w-6 h-6 mx-auto mb-1" />
                 <div className="text-sm font-medium">Text</div>
               </button>
               <button
@@ -451,7 +466,7 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
                     : 'border-gray-300 hover:border-gray-400'
                 }`}
               >
-                <div className="text-2xl mb-1">🖼️</div>
+                <ImageIcon className="w-6 h-6 mx-auto mb-1" />
                 <div className="text-sm font-medium">Image</div>
               </button>
             </div>
@@ -513,36 +528,89 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
           )}
 
           {qrType === 'text' && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Text Content
-              </label>
-              <textarea
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                className="input min-h-[120px]"
-                placeholder="Enter any text, phone number, email, or message..."
-                required
-              />
-              <p className="mt-2 text-sm text-gray-500">
-                The QR code will contain this text. When scanned, it will display the text directly.
-              </p>
-            </div>
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Text Content
+                </label>
+                <textarea
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  className="input min-h-[120px]"
+                  placeholder="Enter any text, phone number, email, or message..."
+                  required
+                />
+                <p className="mt-2 text-sm text-gray-500">
+                  The QR code will contain this text. When scanned, it will display the text directly.
+                </p>
+              </div>
+
+              <div className="border border-gray-200 rounded-lg p-4">
+                <label className="flex items-start space-x-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isDynamic}
+                    onChange={(e) => setIsDynamic(e.target.checked)}
+                    className="mt-1 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                  />
+                  <div className="flex-1">
+                    <div className="font-medium text-gray-900">Dynamic QR Code</div>
+                    <p className="text-sm text-gray-600 mt-1">
+                      Can edit content later (Recommended)
+                    </p>
+                  </div>
+                </label>
+              </div>
+            </>
           )}
 
           {qrType === 'image' && (
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Upload Image
+                <label className="block text-sm font-medium text-gray-700 mb-2 uppercase text-xs tracking-wide">
+                  Image Source
                 </label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                      // Convert to base64
+                <div className="flex gap-2 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => setImageSource('upload')}
+                    className={`flex-1 py-2 px-4 text-sm font-medium rounded-lg transition-all ${
+                      imageSource === 'upload'
+                        ? 'bg-white text-primary-600 border-2 border-primary-500'
+                        : 'bg-gray-100 text-gray-600 border-2 border-transparent hover:bg-gray-200'
+                    }`}
+                  >
+                    Upload File
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setImageSource('url')}
+                    className={`flex-1 py-2 px-4 text-sm font-medium rounded-lg transition-all ${
+                      imageSource === 'url'
+                        ? 'bg-white text-primary-600 border-2 border-primary-500'
+                        : 'bg-gray-100 text-gray-600 border-2 border-transparent hover:bg-gray-200'
+                    }`}
+                  >
+                    Image URL
+                  </button>
+                </div>
+              </div>
+
+              {imageSource === 'upload' ? (
+                <div 
+                  className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary-400 transition-colors cursor-pointer"
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.currentTarget.classList.add('border-primary-500', 'bg-primary-50');
+                  }}
+                  onDragLeave={(e) => {
+                    e.currentTarget.classList.remove('border-primary-500', 'bg-primary-50');
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.currentTarget.classList.remove('border-primary-500', 'bg-primary-50');
+                    const file = e.dataTransfer.files[0];
+                    if (file && file.type.startsWith('image/')) {
                       const reader = new FileReader();
                       reader.onloadend = () => {
                         setImageUrl(reader.result);
@@ -550,44 +618,99 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
                       reader.readAsDataURL(file);
                     }
                   }}
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
-                />
-                <p className="mt-2 text-sm text-gray-500">
-                  Upload an image file (JPG, PNG, GIF). The image will be embedded in the QR code data.
-                </p>
-              </div>
-              
-              <div className="text-center text-gray-500 text-sm">OR</div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Image URL
-                </label>
-                <input
-                  type="text"
-                  value={typeof imageUrl === 'string' && !imageUrl.startsWith('data:') ? imageUrl : ''}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  className="input"
-                  placeholder="https://example.com/image.jpg"
-                />
-                <p className="mt-2 text-sm text-gray-500">
-                  Or enter the URL of an image. When scanned, it will open this image.
-                </p>
-              </div>
-              
-              {imageUrl && (
-                <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-gray-600 mb-2">Preview:</p>
-                  <img 
-                    src={imageUrl} 
-                    alt="Preview" 
-                    className="max-h-40 mx-auto rounded border border-gray-200"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
+                  onClick={() => document.getElementById('imageFileInput').click()}
+                >
+                  <Cloud className="w-12 h-12 mx-auto mb-3 text-primary-500" />
+                  <p className="text-gray-600 mb-2">
+                    Drag and drop your image here, or
+                  </p>
+                  <button
+                    type="button"
+                    className="btn btn-primary inline-block"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      document.getElementById('imageFileInput').click();
+                    }}
+                  >
+                    Upload Image
+                  </button>
+                  <p className="text-xs text-gray-500 mt-3">
+                    JPG, PNG OR SVG (MAX 5MB)
+                  </p>
+                  <input
+                    id="imageFileInput"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setImageUrl(reader.result);
+                        };
+                        reader.readAsDataURL(file);
+                      }
                     }}
                   />
                 </div>
+              ) : (
+                <div>
+                  <input
+                    type="text"
+                    value={typeof imageUrl === 'string' && !imageUrl.startsWith('data:') ? imageUrl : ''}
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    className="input"
+                    placeholder="https://example.com/image.jpg"
+                  />
+                  <p className="mt-2 text-sm text-gray-500">
+                    Enter the URL of an image. When scanned, it will open this image.
+                  </p>
+                </div>
               )}
+              
+              {imageUrl && (
+                <div className="mt-3 relative">
+                  <p className="text-sm text-gray-600 mb-2">Preview:</p>
+                  <div className="relative inline-block">
+                    <img 
+                      src={imageUrl} 
+                      alt="Preview" 
+                      className="w-full rounded border border-gray-200"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setImageUrl('')}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors shadow-lg"
+                      title="Remove image"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="border border-gray-200 rounded-lg p-4">
+                <label className="flex items-start space-x-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isDynamic}
+                    onChange={(e) => setIsDynamic(e.target.checked)}
+                    className="mt-1 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                  />
+                  <div className="flex-1">
+                    <div className="font-medium text-gray-900">Dynamic QR Code</div>
+                    <p className="text-sm text-gray-600 mt-1">
+                      Can edit image later (Recommended)
+                    </p>
+                  </div>
+                </label>
+              </div>
             </div>
           )}
 
