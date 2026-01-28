@@ -1,25 +1,13 @@
 {
   "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "server/index.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "server/index.js",
-      "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+      "source": "/r/:shortCode",
+      "destination": "/api/r/[shortCode]"
     },
     {
-      "src": "/r/(.*)",
-      "dest": "server/index.js",
-      "methods": ["GET", "OPTIONS"]
-    },
-    {
-      "src": "/(.*)",
-      "dest": "server/index.js"
+      "source": "/api/:path*",
+      "destination": "/server/index.js"
     }
   ],
   "headers": [
