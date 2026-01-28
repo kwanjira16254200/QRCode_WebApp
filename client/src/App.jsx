@@ -7,6 +7,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import EditLink from './pages/EditLink';
 import Analytics from './pages/Analytics';
+import QRCodePage from './pages/QRCodePage';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/qr-generator" element={<QRCodePage />} />
             <Route
               path="/dashboard"
               element={
