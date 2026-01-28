@@ -183,42 +183,16 @@ END:VCARD`;
 
         {/* Content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="space-y-6">
+          <div>
             {currentStep === 1 ? (
-              <>
-                <ContentForm qrType={qrType} content={content} onChange={setContent} />
-                
-                {/* Short URL Section */}
-                {shortCode && (
-                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Short URL
-                    </label>
-                    <p className="text-sm text-gray-500 mb-3">
-                      This is the shortened link that redirects to your destination URL. Use this URL in your QR code.
-                    </p>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="text"
-                        value={`${window.location.origin}/r/${shortCode}`}
-                        readOnly
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 font-mono text-sm"
-                      />
-                      <button
-                        onClick={copyShortUrl}
-                        className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                        title="Copy to clipboard"
-                      >
-                        {copied ? (
-                          <Check className="w-5 h-5 text-green-600" />
-                        ) : (
-                          <Copy className="w-5 h-5 text-gray-600" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </>
+              <ContentForm 
+                qrType={qrType} 
+                content={content} 
+                onChange={setContent}
+                shortCode={shortCode}
+                onCopyShortUrl={copyShortUrl}
+                copied={copied}
+              />
             ) : (
               <DesignCustomizer design={design} onChange={setDesign} />
             )}

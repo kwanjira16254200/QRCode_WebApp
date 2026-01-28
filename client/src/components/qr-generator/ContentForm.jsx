@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
+import { Copy, Check } from 'lucide-react';
 
-const ContentForm = ({ qrType, content, onChange }) => {
+const ContentForm = ({ qrType, content, onChange, shortCode, onCopyShortUrl, copied }) => {
   const [formData, setFormData] = useState(content || {});
 
   useEffect(() => {
@@ -336,6 +337,37 @@ const ContentForm = ({ qrType, content, onChange }) => {
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h2 className="text-xl font-bold text-gray-900 mb-4">Enter Content</h2>
         {renderForm()}
+        
+        {/* Short URL Section */}
+        {shortCode && (
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Short URL
+            </label>
+            <p className="text-sm text-gray-500 mb-3">
+              This is the shortened link that redirects to your destination URL. Use this URL in your QR code.
+            </p>
+            <div className="flex items-center space-x-2">
+              <input
+                type="text"
+                value={`${window.location.origin}/r/${shortCode}`}
+                readOnly
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 font-mono text-sm"
+              />
+              <button
+                onClick={onCopyShortUrl}
+                className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                title="Copy to clipboard"
+              >
+                {copied ? (
+                  <Check className="w-5 h-5 text-green-600" />
+                ) : (
+                  <Copy className="w-5 h-5 text-gray-600" />
+                )}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
