@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import EditLink from './pages/EditLink';
+import EditQRCodePage from './pages/EditQRCodePage';
 import Analytics from './pages/Analytics';
 import QRCodePage from './pages/QRCodePage';
 
@@ -32,6 +33,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <EditLink />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/edit/:id"
+              element={
+                <PrivateRoute>
+                  <EditQRCodePage />
                 </PrivateRoute>
               }
             />

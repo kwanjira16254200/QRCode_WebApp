@@ -127,12 +127,37 @@ const Dashboard = () => {
                     {!link.qrType && <Link2 className="w-4 h-4 text-blue-600" />}
                   </div>
                   <div className="flex justify-center mb-4">
-                    <QRCodeSVG
-                      value={getShortUrl(link.shortCode)}
-                      size={150}
-                      level="H"
-                      includeMargin={true}
-                    />
+                    <div
+                      className={`p-2 ${
+                        link.designSettings?.frame === 'rounded'
+                          ? 'rounded-xl'
+                          : link.designSettings?.frame === 'circle'
+                          ? 'rounded-full'
+                          : link.designSettings?.frame === 'square'
+                          ? 'rounded-lg'
+                          : ''
+                      } ${link.designSettings?.frame !== 'none' && link.designSettings?.frame ? 'shadow-sm border-2 border-gray-200' : ''}`}
+                      style={{ backgroundColor: link.designSettings?.bgColor || '#ffffff' }}
+                    >
+                      <QRCodeSVG
+                        value={getShortUrl(link.shortCode)}
+                        size={150}
+                        level="H"
+                        includeMargin={true}
+                        fgColor={link.designSettings?.fgColor || '#000000'}
+                        bgColor={link.designSettings?.bgColor || '#ffffff'}
+                        imageSettings={
+                          link.designSettings?.logo
+                            ? {
+                                src: link.designSettings.logo,
+                                height: 30,
+                                width: 30,
+                                excavate: true,
+                              }
+                            : undefined
+                        }
+                      />
+                    </div>
                   </div>
                   
                   <div className="mb-2">
@@ -175,7 +200,7 @@ const Dashboard = () => {
 
                   <div className="flex space-x-2">
                     <Link
-                      to={`/link/${link._id}`}
+                      to={`/edit/${link._id}`}
                       className="flex-1 btn btn-secondary text-sm flex items-center justify-center space-x-1"
                     >
                       <Edit className="w-4 h-4" />

@@ -135,7 +135,7 @@ END:VCARD`;
       case 4:
         return (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <DownloadOptions qrData={{ type: qrType, content, design }} design={design} onSaveDynamic={handleSaveDynamic} />
+            <DownloadOptions qrData={getQRValue()} design={design} onSaveDynamic={handleSaveDynamic} />
             <QRPreview value={getQRValue()} design={design} />
           </div>
         );

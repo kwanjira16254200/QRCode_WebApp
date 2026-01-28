@@ -60,20 +60,6 @@ const qrTypes = [
 ];
 
 const TypeSelector = ({ onSelectType }) => {
-  const getColorClasses = (color) => {
-    const colors = {
-      blue: 'bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100 hover:border-blue-300',
-      purple: 'bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100 hover:border-purple-300',
-      red: 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100 hover:border-red-300',
-      green: 'bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:border-green-300',
-      yellow: 'bg-yellow-50 text-yellow-600 border-yellow-200 hover:bg-yellow-100 hover:border-yellow-300',
-      indigo: 'bg-indigo-50 text-indigo-600 border-indigo-200 hover:bg-indigo-100 hover:border-indigo-300',
-      pink: 'bg-pink-50 text-pink-600 border-pink-200 hover:bg-pink-100 hover:border-pink-300',
-      orange: 'bg-orange-50 text-orange-600 border-orange-200 hover:bg-orange-100 hover:border-orange-300',
-    };
-    return colors[color] || colors.blue;
-  };
-
   return (
     <div className="max-w-5xl mx-auto px-4">
       <div className="text-center mb-8">
@@ -88,17 +74,15 @@ const TypeSelector = ({ onSelectType }) => {
             <button
               key={type.id}
               onClick={() => onSelectType(type.id)}
-              className={`p-6 border-2 rounded-xl transition-all transform hover:scale-105 hover:shadow-lg ${getColorClasses(
-                type.color
-              )}`}
+              className="p-6 bg-white border-2 border-gray-200 rounded-xl transition-all transform hover:scale-105 hover:shadow-lg hover:border-orange-500 hover:bg-orange-50"
             >
               <div className="flex flex-col items-center text-center space-y-3">
-                <div className="p-3 rounded-full bg-white shadow-sm">
-                  <Icon className="w-8 h-8" />
+                <div className="p-3 rounded-full bg-orange-50">
+                  <Icon className="w-8 h-8 text-orange-500" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg mb-1">{type.name}</h3>
-                  <p className="text-sm opacity-80">{type.description}</p>
+                  <h3 className="font-semibold text-lg mb-1 text-gray-900">{type.name}</h3>
+                  <p className="text-sm text-gray-600">{type.description}</p>
                 </div>
               </div>
             </button>
