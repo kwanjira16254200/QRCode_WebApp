@@ -21,18 +21,29 @@ const Navbar = () => {
           </Link>
 
           <div className="flex items-center space-x-4">
-            {!isAuthenticated && (
-              <Link
-                to="/qr-generator"
-                className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-              >
-                <PlusCircle className="w-5 h-5" />
-                <span>Create QR Code</span>
-              </Link>
-            )}
-
-            {isAuthenticated && (
+            {!isAuthenticated ? (
               <>
+                <Link
+                  to="/login"
+                  className="px-4 py-2 text-gray-700 hover:text-primary-600 font-medium transition-colors"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  to="/register"
+                  className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium"
+                >
+                  Sign up
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/dashboard"
+                  className="px-4 py-2 text-gray-700 hover:text-primary-600 font-medium transition-colors"
+                >
+                  Dashboard
+                </Link>
                 <div className="flex items-center space-x-2 text-gray-700">
                   <User className="w-5 h-5" />
                   <span className="font-medium">{user?.name}</span>

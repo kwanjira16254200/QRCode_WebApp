@@ -45,6 +45,46 @@ const Dashboard = () => {
     return `${window.location.origin}/r/${shortCode}`;
   };
 
+  const getQRValue = (link) => {
+    // If link has content stored, use it to generate proper QR value
+    if (link.content && link.qrType) {
+      const content = link.content;
+      switch (link.qrType) {
+        case 'url':
+          return content.url || link.originalUrl || '';
+        case 'text':
+          return content.text || '';
+        case 'email':
+          return `mailto:${content.email || ''}?subject=${encodeURIComponent(
+            content.subject || ''
+          )}&body=${encodeURIComponent(content.message || '')}`;
+        case 'phone':
+          return `tel:${content.phone || ''}`;
+        case 'sms':
+          return `sms:${content.phone || ''}${content.message ? `?body=${encodeURIComponent(content.message)}` : ''}`;
+        case 'wifi':
+          return `WIFI:T:${content.encryption || 'WPA'};S:${content.ssid || ''};P:${content.password || ''};H:${
+            content.hidden ? 'true' : 'false'
+          };;`;
+        case 'vcard':
+          return `BEGIN:VCARD
+VERSION:3.0
+FN:${content.firstName || ''} ${content.lastName || ''}
+TEL:${content.phone || ''}
+EMAIL:${content.email || ''}
+ORG:${content.company || ''}
+URL:${content.website || ''}
+END:VCARD`;
+        case 'location':
+          return `geo:${content.latitude || '0'},${content.longitude || '0'}`;
+        default:
+          return link.originalUrl || '';
+      }
+    }
+    // Fallback to originalUrl for old data
+    return link.originalUrl || '';
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -140,7 +180,7 @@ const Dashboard = () => {
                       style={{ backgroundColor: link.designSettings?.bgColor || '#ffffff' }}
                     >
                       <QRCodeSVG
-                        value={getShortUrl(link.shortCode)}
+                        value={getQRValue(link)}
                         size={150}
                         level="H"
                         includeMargin={true}
