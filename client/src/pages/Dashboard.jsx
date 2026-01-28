@@ -119,7 +119,13 @@ const Dashboard = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {links.map((link) => (
-                <div key={link._id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div key={link._id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow relative">
+                  <div className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-md border border-gray-200">
+                    {link.qrType === 'url' && <Link2 className="w-4 h-4 text-blue-600" />}
+                    {link.qrType === 'text' && <FileText className="w-4 h-4 text-purple-600" />}
+                    {link.qrType === 'image' && <ImageIcon className="w-4 h-4 text-pink-600" />}
+                    {!link.qrType && <Link2 className="w-4 h-4 text-blue-600" />}
+                  </div>
                   <div className="flex justify-center mb-4">
                     <QRCodeSVG
                       value={getShortUrl(link.shortCode)}
@@ -597,54 +603,21 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
               </div>
 
               {imageSource === 'upload' ? (
-                <div 
-                  className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary-400 transition-colors cursor-pointer"
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    e.currentTarget.classList.add('border-primary-500', 'bg-primary-50');
-                  }}
-                  onDragLeave={(e) => {
-                    e.currentTarget.classList.remove('border-primary-500', 'bg-primary-50');
-                  }}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    e.currentTarget.classList.remove('border-primary-500', 'bg-primary-50');
-                    const file = e.dataTransfer.files[0];
-                    if (file && file.type.startsWith('image/')) {
-                      const reader = new FileReader();
-                      reader.onloadend = () => {
-                        setImageUrl(reader.result);
-                      };
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                  onClick={() => document.getElementById('imageFileInput').click()}
-                >
-                  <Cloud className="w-12 h-12 mx-auto mb-3 text-primary-500" />
-                  <p className="text-gray-600 mb-2">
-                    Drag and drop your image here, or
-                  </p>
-                  <button
-                    type="button"
-                    className="btn btn-primary inline-block"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      document.getElementById('imageFileInput').click();
+                !imageUrl ? (
+                  <div 
+                    className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary-400 transition-colors cursor-pointer"
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.currentTarget.classList.add('border-primary-500', 'bg-primary-50');
                     }}
-                  >
-                    Upload Image
-                  </button>
-                  <p className="text-xs text-gray-500 mt-3">
-                    JPG, PNG OR SVG (MAX 5MB)
-                  </p>
-                  <input
-                    id="imageFileInput"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files[0];
-                      if (file) {
+                    onDragLeave={(e) => {
+                      e.currentTarget.classList.remove('border-primary-500', 'bg-primary-50');
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.currentTarget.classList.remove('border-primary-500', 'bg-primary-50');
+                      const file = e.dataTransfer.files[0];
+                      if (file && file.type.startsWith('image/')) {
                         const reader = new FileReader();
                         reader.onloadend = () => {
                           setImageUrl(reader.result);
@@ -652,46 +625,111 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
                         reader.readAsDataURL(file);
                       }
                     }}
-                  />
-                </div>
+                    onClick={() => document.getElementById('imageFileInput').click()}
+                  >
+                    <Cloud className="w-12 h-12 mx-auto mb-3 text-primary-500" />
+                    <p className="text-gray-600 mb-2">
+                      Drag and drop your image here, or
+                    </p>
+                    <button
+                      type="button"
+                      className="btn btn-primary inline-block"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        document.getElementById('imageFileInput').click();
+                      }}
+                    >
+                      Upload Image
+                    </button>
+                    <p className="text-xs text-gray-500 mt-3">
+                      JPG, PNG OR SVG (MAX 5MB)
+                    </p>
+                    <input
+                      id="imageFileInput"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setImageUrl(reader.result);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="border-2 border-gray-200 rounded-lg p-4 bg-gray-50">
+                    <div className="relative">
+                      <div className="absolute top-2 left-2 bg-gray-800 text-white text-xs px-2 py-1 rounded">
+                        PREVIEW
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setImageUrl('')}
+                        className="absolute top-2 right-2 bg-gray-600 text-white rounded-full p-1.5 hover:bg-gray-700 transition-colors shadow-lg"
+                        title="Remove image"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                      <img 
+                        src={imageUrl} 
+                        alt="Preview" 
+                        className="w-full rounded"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-600 mt-3 text-center">
+                      Successfully fetched image. When scanned, users will be directed to this file.
+                    </p>
+                  </div>
+                )
               ) : (
-                <div>
+                <div className="space-y-3">
                   <input
                     type="text"
                     value={typeof imageUrl === 'string' && !imageUrl.startsWith('data:') ? imageUrl : ''}
                     onChange={(e) => setImageUrl(e.target.value)}
                     className="input"
-                    placeholder="https://example.com/image.jpg"
+                    placeholder="https://example.com/logo.png"
                   />
-                  <p className="mt-2 text-sm text-gray-500">
-                    Enter the URL of an image. When scanned, it will open this image.
-                  </p>
-                </div>
-              )}
-              
-              {imageUrl && (
-                <div className="mt-3 relative">
-                  <p className="text-sm text-gray-600 mb-2">Preview:</p>
-                  <div className="relative inline-block">
-                    <img 
-                      src={imageUrl} 
-                      alt="Preview" 
-                      className="w-full rounded border border-gray-200"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setImageUrl('')}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors shadow-lg"
-                      title="Remove image"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
+                  {imageUrl && !imageUrl.startsWith('data:') && (
+                    <div className="border-2 border-gray-200 rounded-lg p-4 bg-gray-50">
+                      <div className="relative">
+                        <div className="absolute top-2 left-2 bg-gray-800 text-white text-xs px-2 py-1 rounded">
+                          PREVIEW
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setImageUrl('')}
+                          className="absolute top-2 right-2 bg-gray-600 text-white rounded-full p-1.5 hover:bg-gray-700 transition-colors shadow-lg"
+                          title="Remove image"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                        <img 
+                          src={imageUrl} 
+                          alt="Preview" 
+                          className="w-full rounded"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                      <p className="text-xs text-gray-600 mt-3 text-center">
+                        Successfully fetched image. When scanned, users will be directed to this file.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 

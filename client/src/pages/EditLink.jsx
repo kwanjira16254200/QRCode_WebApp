@@ -115,29 +115,67 @@ const EditLink = () => {
     setSaving(true);
 
     try {
-      // Normalize and validate URL
-      const normalizedUrl = normalizeUrl(originalUrl);
-      
-      // Validate URL format
-      const isValid = validateUrl(normalizedUrl);
-      if (!isValid) {
-        alert('Invalid URL. Please enter a valid URL such as example.com or https://example.com');
-        setSaving(false);
-        return;
-      }
+      const qrType = link?.qrType || 'url';
+      let finalUrl = originalUrl;
 
-      // Check if URL is actually reachable
-      const isReachable = await checkUrlReachable(normalizedUrl);
-      
-      if (!isReachable) {
-        alert('Unable to access this URL. Please check that the website exists and is working');
-        setSaving(false);
-        return;
+      // Only validate URLs for 'url' and 'image' types
+      if (qrType === 'url') {
+        // Normalize and validate URL
+        const normalizedUrl = normalizeUrl(originalUrl);
+        
+        // Validate URL format
+        const isValid = validateUrl(normalizedUrl);
+        if (!isValid) {
+          alert('Invalid URL. Please enter a valid URL such as example.com or https://example.com');
+          setSaving(false);
+          return;
+        }
+
+        // Check if URL is actually reachable
+        const isReachable = await checkUrlReachable(normalizedUrl);
+        
+        if (!isReachable) {
+          alert('Unable to access this URL. Please check that the website exists and is working');
+          setSaving(false);
+          return;
+        }
+
+        finalUrl = normalizedUrl;
+      } else if (qrType === 'image') {
+        // For image type, validate if it's a URL (not base64)
+        if (!originalUrl.startsWith('data:')) {
+          const normalizedUrl = normalizeUrl(originalUrl);
+          
+          const isValid = validateUrl(normalizedUrl);
+          if (!isValid) {
+            alert('Invalid image URL. Please enter a valid URL');
+            setSaving(false);
+            return;
+          }
+
+          const isReachable = await checkUrlReachable(normalizedUrl);
+          
+          if (!isReachable) {
+            alert('Unable to access this image URL');
+            setSaving(false);
+            return;
+          }
+
+          finalUrl = normalizedUrl;
+        }
+      } else if (qrType === 'text') {
+        // For text type, no URL validation needed
+        if (!originalUrl.trim()) {
+          alert('Please enter some text');
+          setSaving(false);
+          return;
+        }
+        finalUrl = originalUrl.trim();
       }
 
       await api.put(`/links/${id}`, {
         title,
-        originalUrl: normalizedUrl,
+        originalUrl: finalUrl,
         isActive
       });
       alert('Saved successfully');
@@ -218,21 +256,31 @@ const EditLink = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Destination URL
+                  {link?.qrType === 'text' ? 'Text Content' : link?.qrType === 'image' ? 'Image URL' : 'Destination URL'}
                 </label>
                 {link?.isDynamic === false && (
                   <div className="mb-2 p-3 bg-orange-50 border border-orange-200 rounded-lg text-orange-700 text-sm">
-                    ⚠ This is a Static QR Code - Cannot edit URL
+                    ⚠ This is a Static QR Code - Cannot edit {link?.qrType === 'text' ? 'content' : link?.qrType === 'image' ? 'image' : 'URL'}
                   </div>
                 )}
-                <input
-                  type="url"
-                  value={originalUrl}
-                  onChange={(e) => setOriginalUrl(e.target.value)}
-                  className="input"
-                  disabled={link?.isDynamic === false}
-                  required
-                />
+                {link?.qrType === 'text' ? (
+                  <textarea
+                    value={originalUrl}
+                    onChange={(e) => setOriginalUrl(e.target.value)}
+                    className="input min-h-[120px]"
+                    disabled={link?.isDynamic === false}
+                    required
+                  />
+                ) : (
+                  <input
+                    type={link?.qrType === 'url' ? 'url' : 'text'}
+                    value={originalUrl}
+                    onChange={(e) => setOriginalUrl(e.target.value)}
+                    className="input"
+                    disabled={link?.isDynamic === false}
+                    required
+                  />
+                )}
               </div>
 
               <div>
