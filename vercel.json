@@ -1,7 +1,13 @@
 {
   "version": 2,
-  "buildCommand": "echo 'No build needed for serverless functions'",
-  "installCommand": "npm install",
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "@vercel/node@3.0.7"
+    },
+    "server/index.js": {
+      "runtime": "@vercel/node@3.0.7"
+    }
+  },
   "rewrites": [
     {
       "source": "/r/:shortCode",
@@ -13,7 +19,7 @@
     },
     {
       "source": "/api/:path*",
-      "destination": "/server/index.js"
+      "destination": "/api/index"
     }
   ],
   "headers": [
