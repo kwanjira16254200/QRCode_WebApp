@@ -129,13 +129,24 @@ const Dashboard = () => {
                     />
                   </div>
                   
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold text-gray-900 truncate flex-1">{link.title}</h3>
-                    {link.isDynamic ? (
-                      <span className="ml-2 px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Dynamic</span>
-                    ) : (
-                      <span className="ml-2 px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded-full">Static</span>
-                    )}
+                  <div className="mb-2">
+                    <h3 className="font-semibold text-gray-900 truncate mb-2">{link.title}</h3>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {link.qrType === 'url' && (
+                        <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">🔗 Link</span>
+                      )}
+                      {link.qrType === 'text' && (
+                        <span className="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full">📝 Text</span>
+                      )}
+                      {link.qrType === 'image' && (
+                        <span className="px-2 py-1 text-xs font-medium bg-pink-100 text-pink-800 rounded-full">🖼️ Image</span>
+                      )}
+                      {link.isDynamic ? (
+                        <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Dynamic</span>
+                      ) : (
+                        <span className="px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded-full">Static</span>
+                      )}
+                    </div>
                   </div>
                   
                   <div className="space-y-2 mb-4">
@@ -199,12 +210,16 @@ const Dashboard = () => {
 };
 
 const CreateLinkModal = ({ onClose, onSuccess }) => {
+  const [qrType, setQrType] = useState('url'); // 'url', 'text', 'image'
   const [title, setTitle] = useState('');
   const [url, setUrl] = useState('');
+  const [text, setText] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const [isDynamic, setIsDynamic] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [urlPreview, setUrlPreview] = useState('');
+  const [validating, setValidating] = useState(false);
 
   const normalizeUrl = (inputUrl) => {
     let normalized = inputUrl.trim();
@@ -309,33 +324,73 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
     setValidating(true);
 
     try {
-      // Normalize the URL
-      const normalizedUrl = normalizeUrl(url);
-      
-      // Validate URL format
-      const isValid = validateUrl(normalizedUrl);
-      if (!isValid) {
-        setError('Invalid URL. Please enter a valid URL such as example.com or https://example.com');
-        setLoading(false);
-        setValidating(false);
-        return;
-      }
+      let finalUrl = '';
 
-      // Check if URL is actually reachable
-      const isReachable = await checkUrlReachable(normalizedUrl);
-      setValidating(false);
-      
-      if (!isReachable) {
-        setError('Unable to access this URL. Please check that the website exists and is working');
-        setLoading(false);
-        return;
+      // Handle different QR code types
+      if (qrType === 'url') {
+        // Normalize the URL
+        const normalizedUrl = normalizeUrl(url);
+        
+        // Validate URL format
+        const isValid = validateUrl(normalizedUrl);
+        if (!isValid) {
+          setError('Invalid URL. Please enter a valid URL such as example.com or https://example.com');
+          setLoading(false);
+          setValidating(false);
+          return;
+        }
+
+        // Check if URL is actually reachable
+        const isReachable = await checkUrlReachable(normalizedUrl);
+        setValidating(false);
+        
+        if (!isReachable) {
+          setError('Unable to access this URL. Please check that the website exists and is working');
+          setLoading(false);
+          return;
+        }
+
+        finalUrl = normalizedUrl;
+      } else if (qrType === 'text') {
+        // For text type, just use the text as-is
+        if (!text.trim()) {
+          setError('Please enter some text');
+          setLoading(false);
+          setValidating(false);
+          return;
+        }
+        finalUrl = text.trim();
+        setValidating(false);
+      } else if (qrType === 'image') {
+        // For image type, validate the image URL
+        const normalizedImageUrl = normalizeUrl(imageUrl);
+        
+        const isValid = validateUrl(normalizedImageUrl);
+        if (!isValid) {
+          setError('Invalid image URL. Please enter a valid URL');
+          setLoading(false);
+          setValidating(false);
+          return;
+        }
+
+        const isReachable = await checkUrlReachable(normalizedImageUrl);
+        setValidating(false);
+        
+        if (!isReachable) {
+          setError('Unable to access this image URL');
+          setLoading(false);
+          return;
+        }
+
+        finalUrl = normalizedImageUrl;
       }
 
       // Create QR code
       await api.post('/links', {
         title,
-        originalUrl: normalizedUrl,
-        isDynamic
+        originalUrl: finalUrl,
+        isDynamic: qrType === 'url' ? isDynamic : false, // Only URL type can be dynamic
+        qrType: qrType
       });
       onSuccess();
     } catch (err) {
@@ -360,6 +415,50 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
+              QR Code Type
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => setQrType('url')}
+                className={`p-3 border rounded-lg text-center transition-all ${
+                  qrType === 'url'
+                    ? 'border-primary-500 bg-primary-50 text-primary-700'
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
+              >
+                <div className="text-2xl mb-1">🔗</div>
+                <div className="text-sm font-medium">Link</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setQrType('text')}
+                className={`p-3 border rounded-lg text-center transition-all ${
+                  qrType === 'text'
+                    ? 'border-primary-500 bg-primary-50 text-primary-700'
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
+              >
+                <div className="text-2xl mb-1">📝</div>
+                <div className="text-sm font-medium">Text</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setQrType('image')}
+                className={`p-3 border rounded-lg text-center transition-all ${
+                  qrType === 'image'
+                    ? 'border-primary-500 bg-primary-50 text-primary-700'
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
+              >
+                <div className="text-2xl mb-1">🖼️</div>
+                <div className="text-sm font-medium">Image</div>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               QR Code Name
             </label>
             <input
@@ -372,42 +471,125 @@ const CreateLinkModal = ({ onClose, onSuccess }) => {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Destination URL
-            </label>
-            <input
-              type="text"
-              value={url}
-              onChange={handleUrlChange}
-              className="input"
-              placeholder="example.com or www.example.com"
-              required
-            />
-            {urlPreview && (
-              <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-sm">
-                <span className="text-gray-600">Will be saved as: </span>
-                <span className="text-blue-700 font-medium">{urlPreview}</span>
+          {qrType === 'url' && (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Destination URL
+                </label>
+                <input
+                  type="text"
+                  value={url}
+                  onChange={handleUrlChange}
+                  className="input"
+                  placeholder="example.com or www.example.com"
+                  required
+                />
+                {urlPreview && (
+                  <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-sm">
+                    <span className="text-gray-600">Will be saved as: </span>
+                    <span className="text-blue-700 font-medium">{urlPreview}</span>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-          <div className="border border-gray-200 rounded-lg p-4">
-            <label className="flex items-start space-x-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={isDynamic}
-                onChange={(e) => setIsDynamic(e.target.checked)}
-                className="mt-1 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+              <div className="border border-gray-200 rounded-lg p-4">
+                <label className="flex items-start space-x-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isDynamic}
+                    onChange={(e) => setIsDynamic(e.target.checked)}
+                    className="mt-1 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                  />
+                  <div className="flex-1">
+                    <div className="font-medium text-gray-900">Dynamic QR Code</div>
+                    <p className="text-sm text-gray-600 mt-1">
+                      Can edit URL later (Recommended)
+                    </p>
+                  </div>
+                </label>
+              </div>
+            </>
+          )}
+
+          {qrType === 'text' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Text Content
+              </label>
+              <textarea
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                className="input min-h-[120px]"
+                placeholder="Enter any text, phone number, email, or message..."
+                required
               />
-              <div className="flex-1">
-                <div className="font-medium text-gray-900">Dynamic QR Code</div>
-                <p className="text-sm text-gray-600 mt-1">
-                  Can edit URL later (Recommended)
+              <p className="mt-2 text-sm text-gray-500">
+                The QR code will contain this text. When scanned, it will display the text directly.
+              </p>
+            </div>
+          )}
+
+          {qrType === 'image' && (
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Upload Image
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      // Convert to base64
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        setImageUrl(reader.result);
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+                />
+                <p className="mt-2 text-sm text-gray-500">
+                  Upload an image file (JPG, PNG, GIF). The image will be embedded in the QR code data.
                 </p>
               </div>
-            </label>
-          </div>
+              
+              <div className="text-center text-gray-500 text-sm">OR</div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Image URL
+                </label>
+                <input
+                  type="text"
+                  value={typeof imageUrl === 'string' && !imageUrl.startsWith('data:') ? imageUrl : ''}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  className="input"
+                  placeholder="https://example.com/image.jpg"
+                />
+                <p className="mt-2 text-sm text-gray-500">
+                  Or enter the URL of an image. When scanned, it will open this image.
+                </p>
+              </div>
+              
+              {imageUrl && (
+                <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                  <p className="text-sm text-gray-600 mb-2">Preview:</p>
+                  <img 
+                    src={imageUrl} 
+                    alt="Preview" 
+                    className="max-h-40 mx-auto rounded border border-gray-200"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="flex space-x-3">
             <button

@@ -3,10 +3,16 @@ import { supabase } from '../config/supabase.js';
 
 export const createLink = async (req, res) => {
   try {
-    const { title, originalUrl, isDynamic = true } = req.body;
+    const { title, originalUrl, isDynamic = true, qrType = 'url' } = req.body;
 
     if (!title || !originalUrl) {
       return res.status(400).json({ message: 'Title and URL are required' });
+    }
+
+    // Validate qrType
+    const validTypes = ['url', 'text', 'image'];
+    if (!validTypes.includes(qrType)) {
+      return res.status(400).json({ message: 'Invalid QR type' });
     }
 
     const shortCode = nanoid(8);
@@ -18,7 +24,8 @@ export const createLink = async (req, res) => {
         title,
         original_url: originalUrl,
         short_code: shortCode,
-        is_dynamic: isDynamic
+        is_dynamic: isDynamic,
+        qr_type: qrType
       }])
       .select()
       .single();
@@ -36,6 +43,7 @@ export const createLink = async (req, res) => {
       clicks: link.clicks,
       isActive: link.is_active,
       isDynamic: link.is_dynamic,
+      qrType: link.qr_type,
       createdAt: link.created_at
     });
   } catch (error) {
@@ -65,6 +73,7 @@ export const getLinks = async (req, res) => {
       clicks: link.clicks,
       isActive: link.is_active,
       isDynamic: link.is_dynamic,
+      qrType: link.qr_type || 'url',
       createdAt: link.created_at,
       updatedAt: link.updated_at
     }));
