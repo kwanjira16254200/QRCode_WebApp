@@ -1,4 +1,4 @@
-// Vercel Serverless Function for redirect
+// Vercel Serverless Function for redirect (backward compatibility for /r/ route)
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
