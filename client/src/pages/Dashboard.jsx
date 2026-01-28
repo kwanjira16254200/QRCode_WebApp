@@ -42,7 +42,7 @@ const Dashboard = () => {
   };
 
   const getShortUrl = (shortCode) => {
-    return `${window.location.origin}/s/${shortCode}`;
+    return `${window.location.origin}/r/${shortCode}`;
   };
 
   const getQRValue = (link) => {

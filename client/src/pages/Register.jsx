@@ -42,15 +42,14 @@ const Register = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 px-4">
       <div className="max-w-md w-full">
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <QrCode className="w-16 h-16 text-primary-600" />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900">Sign Up</h1>
-          <p className="text-gray-600 mt-2">Create a new account to get started</p>
-        </div>
-
         <div className="card">
+          <div className="text-center mb-8">
+            <div className="flex justify-center mb-4">
+              <QrCode className="w-16 h-16 text-primary-600" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900">Sign Up</h1>
+            <p className="text-gray-600 mt-2">Create a new account to get started</p>
+          </div>
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center space-x-2 text-red-700">
               <AlertCircle className="w-5 h-5" />

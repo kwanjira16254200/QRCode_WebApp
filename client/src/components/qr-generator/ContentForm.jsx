@@ -350,7 +350,7 @@ const ContentForm = ({ qrType, content, onChange, shortCode, onCopyShortUrl, cop
             <div className="flex items-center space-x-2">
               <input
                 type="text"
-                value={`${window.location.origin}/s/${shortCode}`}
+                value={`${window.location.origin}/r/${shortCode}`}
                 readOnly
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 font-mono text-sm"
               />
