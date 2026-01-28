@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Download, Save, LogIn } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { QRCodeSVG } from 'qrcode.react';
 
 const DownloadOptions = ({ qrData, design, onSaveDynamic }) => {
   const { isAuthenticated } = useAuth();
@@ -83,9 +84,24 @@ const DownloadOptions = ({ qrData, design, onSaveDynamic }) => {
             } ${design.frame !== 'none' ? 'shadow-md border-4 border-gray-200' : ''}`}
             style={{ backgroundColor: design.bgColor }}
           >
-            <svg width="300" height="300" viewBox="0 0 300 300">
-              {/* This will be replaced by actual QR code */}
-            </svg>
+            <QRCodeSVG
+              value={qrData}
+              size={300}
+              level="H"
+              includeMargin={true}
+              fgColor={design.fgColor}
+              bgColor={design.bgColor}
+              imageSettings={
+                design.logo
+                  ? {
+                      src: design.logo,
+                      height: 60,
+                      width: 60,
+                      excavate: true,
+                    }
+                  : undefined
+              }
+            />
           </div>
         </div>
 
