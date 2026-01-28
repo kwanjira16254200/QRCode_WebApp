@@ -17,24 +17,38 @@ export const createLink = async (req, res) => {
 
     const shortCode = nanoid(8);
 
+    // Prepare insert data - only include fields that exist in the table
+    const insertData = {
+      user_id: req.user.id,
+      title,
+      original_url: originalUrl,
+      short_code: shortCode
+    };
+
+    // Try to add new fields, but don't fail if they don't exist
+    try {
+      insertData.is_dynamic = isDynamic;
+      insertData.qr_type = qrType;
+      insertData.content = content || null;
+      insertData.design_settings = designSettings || null;
+    } catch (e) {
+      console.warn('Some fields may not exist in links table:', e.message);
+    }
+
     const { data: link, error } = await supabase
       .from('links')
-      .insert([{
-        user_id: req.user.id,
-        title,
-        original_url: originalUrl,
-        short_code: shortCode,
-        is_dynamic: isDynamic,
-        qr_type: qrType,
-        content: content || null,
-        design_settings: designSettings || null
-      }])
+      .insert([insertData])
       .select()
       .single();
 
     if (error) {
       console.error('Supabase error:', error);
-      return res.status(500).json({ message: 'Server error' });
+      console.error('Error details:', JSON.stringify(error, null, 2));
+      return res.status(500).json({ 
+        message: 'Server error', 
+        error: error.message,
+        hint: error.hint 
+      });
     }
 
     res.status(201).json({

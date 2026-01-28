@@ -4,17 +4,29 @@ export const redirect = async (req, res) => {
   try {
     const { shortCode } = req.params;
 
+    console.log('Redirect request for shortCode:', shortCode);
+
     const { data: link, error } = await supabase
       .from('links')
       .select('*')
       .eq('short_code', shortCode)
       .single();
 
-    if (error || !link) {
+    if (error) {
+      console.error('Supabase error in redirect:', error);
+      return res.status(404).json({ message: 'Link not found', error: error.message });
+    }
+
+    if (!link) {
+      console.log('No link found for shortCode:', shortCode);
       return res.status(404).json({ message: 'Link not found' });
     }
 
-    if (!link.is_active) {
+    console.log('Link found:', { id: link.id, title: link.title, url: link.original_url });
+
+    // Check is_active with fallback to true if column doesn't exist
+    const isActive = link.is_active !== undefined ? link.is_active : true;
+    if (!isActive) {
       return res.status(410).json({ message: 'Link is no longer active' });
     }
 
