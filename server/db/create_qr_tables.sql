@@ -1,8 +1,9 @@
 -- Create qr_codes table for the new multi-step QR generator
 CREATE TABLE IF NOT EXISTS qr_codes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
   qr_type TEXT NOT NULL CHECK (qr_type IN ('url', 'text', 'email', 'phone', 'sms', 'wifi', 'vcard', 'location')),
+  title TEXT NOT NULL,
   content JSONB NOT NULL,
   design_settings JSONB DEFAULT '{"frame": "none", "pattern": "square", "fgColor": "#000000", "bgColor": "#ffffff", "logo": null}'::jsonb,
   short_code TEXT UNIQUE NOT NULL,

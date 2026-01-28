@@ -71,9 +71,15 @@ END:VCARD`;
       alert('Please select a QR code type');
       return;
     }
-    if (currentStep === 2 && !getQRValue()) {
-      alert('Please fill in the required fields');
-      return;
+    if (currentStep === 2) {
+      if (!content.name || !content.name.trim()) {
+        alert('Please enter a QR Code Name');
+        return;
+      }
+      if (!getQRValue()) {
+        alert('Please fill in the required fields');
+        return;
+      }
     }
     if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
@@ -92,7 +98,7 @@ END:VCARD`;
       const qrValue = getQRValue();
 
       await api.post('/links', {
-        title: `${qrType.toUpperCase()} QR Code`,
+        title: content.name || `${qrType.toUpperCase()} QR Code`,
         originalUrl: qrValue,
         isDynamic: true,
         qrType: qrType,

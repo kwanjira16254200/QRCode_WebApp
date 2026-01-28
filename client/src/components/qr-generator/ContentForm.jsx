@@ -14,10 +14,26 @@ const ContentForm = ({ qrType, content, onChange }) => {
   };
 
   const renderForm = () => {
+    const nameField = (
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">QR Code Name</label>
+        <input
+          type="text"
+          value={formData.name || ''}
+          onChange={(e) => handleChange('name', e.target.value)}
+          placeholder="e.g., My Website QR, Contact Card, WiFi Access"
+          className="input"
+          required
+        />
+        <p className="mt-1 text-sm text-gray-500">Give your QR code a memorable name</p>
+      </div>
+    );
+
     switch (qrType) {
       case 'url':
         return (
           <div className="space-y-4">
+            {nameField}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Website URL</label>
               <input
@@ -36,6 +52,7 @@ const ContentForm = ({ qrType, content, onChange }) => {
       case 'text':
         return (
           <div className="space-y-4">
+            {nameField}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Text Content</label>
               <textarea
@@ -53,6 +70,7 @@ const ContentForm = ({ qrType, content, onChange }) => {
       case 'email':
         return (
           <div className="space-y-4">
+            {nameField}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
               <input
@@ -89,6 +107,7 @@ const ContentForm = ({ qrType, content, onChange }) => {
       case 'phone':
         return (
           <div className="space-y-4">
+            {nameField}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
               <input
@@ -107,6 +126,7 @@ const ContentForm = ({ qrType, content, onChange }) => {
       case 'sms':
         return (
           <div className="space-y-4">
+            {nameField}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
               <input
@@ -133,6 +153,7 @@ const ContentForm = ({ qrType, content, onChange }) => {
       case 'wifi':
         return (
           <div className="space-y-4">
+            {nameField}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Network Name (SSID)</label>
               <input
@@ -185,6 +206,7 @@ const ContentForm = ({ qrType, content, onChange }) => {
       case 'vcard':
         return (
           <div className="space-y-4">
+            {nameField}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">First Name</label>
@@ -255,6 +277,7 @@ const ContentForm = ({ qrType, content, onChange }) => {
       case 'location':
         return (
           <div className="space-y-4">
+            {nameField}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Latitude</label>
