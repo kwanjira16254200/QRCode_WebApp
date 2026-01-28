@@ -3,14 +3,14 @@ import { supabase } from '../config/supabase.js';
 
 export const createLink = async (req, res) => {
   try {
-    const { title, originalUrl, isDynamic = true, qrType = 'url' } = req.body;
+    const { title, originalUrl, isDynamic = true, qrType = 'url', content, designSettings } = req.body;
 
     if (!title || !originalUrl) {
       return res.status(400).json({ message: 'Title and URL are required' });
     }
 
     // Validate qrType
-    const validTypes = ['url', 'text', 'image'];
+    const validTypes = ['url', 'text', 'email', 'phone', 'sms', 'wifi', 'vcard', 'location', 'image'];
     if (!validTypes.includes(qrType)) {
       return res.status(400).json({ message: 'Invalid QR type' });
     }
@@ -25,7 +25,9 @@ export const createLink = async (req, res) => {
         original_url: originalUrl,
         short_code: shortCode,
         is_dynamic: isDynamic,
-        qr_type: qrType
+        qr_type: qrType,
+        content: content || null,
+        design_settings: designSettings || null
       }])
       .select()
       .single();
@@ -44,6 +46,8 @@ export const createLink = async (req, res) => {
       isActive: link.is_active,
       isDynamic: link.is_dynamic,
       qrType: link.qr_type,
+      content: link.content,
+      designSettings: link.design_settings,
       createdAt: link.created_at
     });
   } catch (error) {
@@ -74,6 +78,8 @@ export const getLinks = async (req, res) => {
       isActive: link.is_active,
       isDynamic: link.is_dynamic,
       qrType: link.qr_type || 'url',
+      content: link.content,
+      designSettings: link.design_settings,
       createdAt: link.created_at,
       updatedAt: link.updated_at
     }));
@@ -106,6 +112,9 @@ export const getLink = async (req, res) => {
       clicks: link.clicks,
       isActive: link.is_active,
       isDynamic: link.is_dynamic,
+      qrType: link.qr_type,
+      content: link.content,
+      designSettings: link.design_settings,
       createdAt: link.created_at,
       updatedAt: link.updated_at
     });
@@ -117,7 +126,7 @@ export const getLink = async (req, res) => {
 
 export const updateLink = async (req, res) => {
   try {
-    const { title, originalUrl, isActive } = req.body;
+    const { title, originalUrl, isActive, qrType, content, designSettings } = req.body;
 
     // ตรวจสอบว่า link เป็น dynamic หรือไม่
     const { data: existingLink } = await supabase
@@ -142,6 +151,9 @@ export const updateLink = async (req, res) => {
     if (title) updateData.title = title;
     if (originalUrl) updateData.original_url = originalUrl;
     if (typeof isActive !== 'undefined') updateData.is_active = isActive;
+    if (qrType) updateData.qr_type = qrType;
+    if (content) updateData.content = content;
+    if (designSettings) updateData.design_settings = designSettings;
     updateData.updated_at = new Date().toISOString();
 
     const { data: link, error } = await supabase
@@ -164,6 +176,9 @@ export const updateLink = async (req, res) => {
       clicks: link.clicks,
       isActive: link.is_active,
       isDynamic: link.is_dynamic,
+      qrType: link.qr_type,
+      content: link.content,
+      designSettings: link.design_settings,
       createdAt: link.created_at,
       updatedAt: link.updated_at
     });

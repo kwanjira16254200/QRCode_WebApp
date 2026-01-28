@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Save } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Copy, Check } from 'lucide-react';
 import api from '../utils/api';
 import ContentForm from '../components/qr-generator/ContentForm';
 import DesignCustomizer from '../components/qr-generator/DesignCustomizer';
@@ -12,9 +12,11 @@ const EditQRCodePage = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [copied, setCopied] = useState(false);
   
   const [qrType, setQrType] = useState('');
   const [content, setContent] = useState({});
+  const [shortCode, setShortCode] = useState('');
   const [design, setDesign] = useState({
     frame: 'none',
     pattern: 'square',
@@ -33,6 +35,9 @@ const EditQRCodePage = () => {
       
       // Set QR type
       setQrType(data.qrType || 'url');
+      
+      // Set short code
+      setShortCode(data.shortCode || '');
       
       // Set content from stored data
       if (data.content) {
@@ -92,6 +97,13 @@ END:VCARD`;
       default:
         return '';
     }
+  };
+
+  const copyShortUrl = () => {
+    const shortUrl = `${window.location.origin}/r/${shortCode}`;
+    navigator.clipboard.writeText(shortUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleSave = async () => {
@@ -171,9 +183,42 @@ END:VCARD`;
 
         {/* Content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div>
+          <div className="space-y-6">
             {currentStep === 1 ? (
-              <ContentForm qrType={qrType} content={content} onChange={setContent} />
+              <>
+                <ContentForm qrType={qrType} content={content} onChange={setContent} />
+                
+                {/* Short URL Section */}
+                {shortCode && (
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Short URL
+                    </label>
+                    <p className="text-sm text-gray-500 mb-3">
+                      This is the shortened link that redirects to your destination URL. Use this URL in your QR code.
+                    </p>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="text"
+                        value={`${window.location.origin}/r/${shortCode}`}
+                        readOnly
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 font-mono text-sm"
+                      />
+                      <button
+                        onClick={copyShortUrl}
+                        className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                        title="Copy to clipboard"
+                      >
+                        {copied ? (
+                          <Check className="w-5 h-5 text-green-600" />
+                        ) : (
+                          <Copy className="w-5 h-5 text-gray-600" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
             ) : (
               <DesignCustomizer design={design} onChange={setDesign} />
             )}
