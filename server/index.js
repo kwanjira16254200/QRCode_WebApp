@@ -69,7 +69,7 @@ testSupabaseConnection();
 app.use('/api/auth', authRoutes);
 app.use('/api/links', linkRoutes);
 app.use('/api/validate', validateRoutes);
-app.use('/r', redirectRoutes);
+app.use('/s', redirectRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server is running', database: 'Supabase' });

@@ -2,8 +2,8 @@
   "version": 2,
   "rewrites": [
     {
-      "source": "/r/:shortCode",
-      "destination": "/api/r/[shortCode]"
+      "source": "/s/:shortCode",
+      "destination": "/api/s/[shortCode]"
     },
     {
       "source": "/api/:path*",
