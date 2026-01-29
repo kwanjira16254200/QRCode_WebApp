@@ -22,6 +22,15 @@ const Dashboard = () => {
       ]);
       setStats(statsRes.data);
       setLinks(linksRes.data);
+      
+      // Debug: Log design settings for each link
+      console.log('Links fetched:', linksRes.data.length);
+      linksRes.data.forEach((link, index) => {
+        console.log(`Link ${index + 1} (${link.title}):`, {
+          hasDesignSettings: !!link.designSettings,
+          designSettings: link.designSettings
+        });
+      });
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {

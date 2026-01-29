@@ -36,6 +36,7 @@ const QRPreview = ({ value, design }) => {
           >
             <div className="relative">
               <QRCodeSVG
+                id="qr-preview-svg"
                 value={getQRValue()}
                 size={256}
                 level="H"

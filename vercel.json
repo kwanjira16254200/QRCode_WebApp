@@ -1,33 +1,27 @@
 {
   "version": 2,
-  "functions": {
-    "api/**/*.js": {
-      "runtime": "@vercel/node@3.0.7"
-    }
-  },
-  "rewrites": [
+  "builds": [
     {
-      "source": "/r/:shortCode",
-      "destination": "/api/r/[shortCode]"
-    },
-    {
-      "source": "/s/:shortCode",
-      "destination": "/api/s/[shortCode]"
-    },
-    {
-      "source": "/api/:path*",
-      "destination": "/api/index"
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
     }
   ],
-  "headers": [
+  "routes": [
     {
-      "source": "/api/(.*)",
-      "headers": [
-        { "key": "Access-Control-Allow-Credentials", "value": "true" },
-        { "key": "Access-Control-Allow-Origin", "value": "https://qrcode-webapp.web.app" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
-        { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization" }
-      ]
+      "src": "/r/([^/]+)",
+      "dest": "/api/r/[shortCode]?shortCode=$1"
+    },
+    {
+      "src": "/s/([^/]+)",
+      "dest": "/api/s/[shortCode]?shortCode=$1"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/index"
     }
-  ]
+  ],
+  "env": {
+    "SUPABASE_URL": "@supabase_url",
+    "SUPABASE_ANON_KEY": "@supabase_anon_key"
+  }
 }

@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Save, Copy, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Copy, Check, Download } from 'lucide-react';
 import api from '../utils/api';
 import ContentForm from '../components/qr-generator/ContentForm';
 import DesignCustomizer from '../components/qr-generator/DesignCustomizer';
@@ -104,6 +104,36 @@ END:VCARD`;
     navigator.clipboard.writeText(shortUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const downloadQR = () => {
+    const svg = document.querySelector('#qr-preview-svg');
+    if (!svg) return;
+
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+
+    canvas.width = 1024;
+    canvas.height = 1024;
+
+    img.onload = () => {
+      ctx.fillStyle = design.bgColor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${content.name || 'qrcode'}.png`;
+        link.click();
+        URL.revokeObjectURL(url);
+      });
+    };
+
+    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
   };
 
   const handleSave = async () => {
@@ -228,14 +258,23 @@ END:VCARD`;
                 <ArrowLeft className="w-5 h-5" />
                 <span>Back</span>
               </button>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="btn btn-primary flex items-center space-x-2"
-              >
-                <Save className="w-5 h-5" />
-                <span>{saving ? 'Saving...' : 'Save Changes'}</span>
-              </button>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={downloadQR}
+                  className="btn btn-secondary flex items-center space-x-2"
+                >
+                  <Download className="w-5 h-5" />
+                  <span>Download QR</span>
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="btn btn-primary flex items-center space-x-2"
+                >
+                  <Save className="w-5 h-5" />
+                  <span>{saving ? 'Saving...' : 'Save Changes'}</span>
+                </button>
+              </div>
             </>
           )}
         </div>
