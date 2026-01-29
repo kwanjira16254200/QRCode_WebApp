@@ -10,7 +10,7 @@ export const createLink = async (req, res) => {
     }
 
     // Validate qrType
-    const validTypes = ['url', 'text', 'email', 'phone', 'sms', 'wifi', 'vcard', 'location', 'image'];
+    const validTypes = ['url', 'pdf', 'video', 'image', 'facebook', 'instagram', 'whatsapp', 'text', 'email', 'phone', 'sms', 'wifi', 'vcard', 'location'];
     if (!validTypes.includes(qrType)) {
       return res.status(400).json({ message: 'Invalid QR type' });
     }

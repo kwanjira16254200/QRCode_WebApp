@@ -50,6 +50,110 @@ const ContentForm = ({ qrType, content, onChange, shortCode, onCopyShortUrl, cop
           </div>
         );
 
+      case 'pdf':
+        return (
+          <div className="space-y-4">
+            {nameField}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">PDF URL</label>
+              <input
+                type="url"
+                value={formData.url || ''}
+                onChange={(e) => handleChange('url', e.target.value)}
+                placeholder="https://example.com/document.pdf"
+                className="input"
+                required
+              />
+              <p className="mt-1 text-sm text-gray-500">Enter the direct link to your PDF file</p>
+            </div>
+          </div>
+        );
+
+      case 'video':
+        return (
+          <div className="space-y-4">
+            {nameField}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Video URL</label>
+              <input
+                type="url"
+                value={formData.url || ''}
+                onChange={(e) => handleChange('url', e.target.value)}
+                placeholder="https://youtube.com/watch?v=..."
+                className="input"
+                required
+              />
+              <p className="mt-1 text-sm text-gray-500">YouTube, Vimeo, or any video URL</p>
+            </div>
+          </div>
+        );
+
+      case 'facebook':
+        return (
+          <div className="space-y-4">
+            {nameField}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Facebook URL</label>
+              <input
+                type="url"
+                value={formData.url || ''}
+                onChange={(e) => handleChange('url', e.target.value)}
+                placeholder="https://facebook.com/yourpage"
+                className="input"
+                required
+              />
+              <p className="mt-1 text-sm text-gray-500">Link to your Facebook profile or page</p>
+            </div>
+          </div>
+        );
+
+      case 'instagram':
+        return (
+          <div className="space-y-4">
+            {nameField}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Instagram URL</label>
+              <input
+                type="url"
+                value={formData.url || ''}
+                onChange={(e) => handleChange('url', e.target.value)}
+                placeholder="https://instagram.com/yourusername"
+                className="input"
+                required
+              />
+              <p className="mt-1 text-sm text-gray-500">Link to your Instagram profile</p>
+            </div>
+          </div>
+        );
+
+      case 'whatsapp':
+        return (
+          <div className="space-y-4">
+            {nameField}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">WhatsApp Number</label>
+              <input
+                type="tel"
+                value={formData.phone || ''}
+                onChange={(e) => handleChange('phone', e.target.value)}
+                placeholder="+1234567890"
+                className="input"
+                required
+              />
+              <p className="mt-1 text-sm text-gray-500">Include country code (e.g., +66 for Thailand)</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Pre-filled Message (Optional)</label>
+              <textarea
+                value={formData.message || ''}
+                onChange={(e) => handleChange('message', e.target.value)}
+                placeholder="Hello! I'd like to..."
+                className="input min-h-[100px]"
+              />
+            </div>
+          </div>
+        );
+
       case 'text':
         return (
           <div className="space-y-4">

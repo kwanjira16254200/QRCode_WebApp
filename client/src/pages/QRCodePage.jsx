@@ -35,7 +35,13 @@ export default function QRCodePage() {
 
     switch (qrType) {
       case 'url':
+      case 'pdf':
+      case 'video':
+      case 'facebook':
+      case 'instagram':
         return content.url || '';
+      case 'whatsapp':
+        return `https://wa.me/${content.phone?.replace(/[^0-9]/g, '')}${content.message ? `?text=${encodeURIComponent(content.message)}` : ''}`;
       case 'text':
         return content.text || '';
       case 'email':
