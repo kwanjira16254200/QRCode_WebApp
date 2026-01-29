@@ -1,6 +1,8 @@
 // Vercel Serverless Function for redirect
 import { createClient } from '@supabase/supabase-js';
 
+// Vercel serverless functions use process.env
+// Make sure SUPABASE_URL and SUPABASE_ANON_KEY are set in Vercel dashboard
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
