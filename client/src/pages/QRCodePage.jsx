@@ -41,20 +41,14 @@ export default function QRCodePage() {
       case 'instagram':
         return content.url || '';
       case 'image':
-        // For image QR, return first available: uploaded image data, first URL, or placeholder
-        if (content.uploadedImages && content.uploadedImages.length > 0) {
-          return content.uploadedImages[0].data;
-        }
+        // For image QR, return first URL
         if (content.imageUrls && content.imageUrls.length > 0 && content.imageUrls[0]) {
           return content.imageUrls[0];
         }
-        return 'image-qr-code';
+        return '';
       case 'video':
-        // For video QR, return uploaded video data or URL
-        if (content.uploadedVideo) {
-          return content.uploadedVideo.data;
-        }
-        return content.url || 'video-qr-code';
+        // For video QR, return URL
+        return content.url || '';
       case 'whatsapp':
         return `https://wa.me/${content.phone?.replace(/[^0-9]/g, '')}${content.message ? `?text=${encodeURIComponent(content.message)}` : ''}`;
       case 'text':
@@ -100,17 +94,15 @@ END:VCARD`;
       
       // Special validation for image and video types
       if (qrType === 'image') {
-        const hasUploadedImages = content.uploadedImages && content.uploadedImages.length > 0;
         const hasImageUrls = content.imageUrls && content.imageUrls.some(url => url && url.trim());
-        if (!hasUploadedImages && !hasImageUrls) {
-          alert('Please upload images or add image URLs');
+        if (!hasImageUrls) {
+          alert('Please add at least one image URL');
           return;
         }
       } else if (qrType === 'video') {
-        const hasUploadedVideo = content.uploadedVideo;
         const hasVideoUrl = content.url && content.url.trim();
-        if (!hasUploadedVideo && !hasVideoUrl) {
-          alert('Please upload a video or add a video URL');
+        if (!hasVideoUrl) {
+          alert('Please add a video URL');
           return;
         }
       } else {
