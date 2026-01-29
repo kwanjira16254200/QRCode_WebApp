@@ -379,6 +379,25 @@ const ContentForm = ({ qrType, content, onChange, shortCode, onCopyShortUrl, cop
           </div>
         );
 
+      case 'image':
+        return (
+          <div className="space-y-4">
+            {nameField}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Image URL</label>
+              <input
+                type="url"
+                value={formData.url || ''}
+                onChange={(e) => handleChange('url', e.target.value)}
+                placeholder="https://example.com/image.jpg"
+                className="input"
+                required
+              />
+              <p className="mt-1 text-sm text-gray-500">Enter the direct link to your image file</p>
+            </div>
+          </div>
+        );
+
       case 'location':
         return (
           <div className="space-y-4">
