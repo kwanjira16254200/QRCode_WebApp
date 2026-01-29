@@ -25,13 +25,18 @@ const QRPreview = ({ value, design }) => {
               design.frame === 'rounded'
                 ? 'rounded-2xl'
                 : design.frame === 'circle'
-                ? 'rounded-full'
+                ? 'rounded-full overflow-hidden'
                 : design.frame === 'square'
                 ? 'rounded-lg'
                 : ''
             } ${design.frame !== 'none' ? 'shadow-md border-4 border-gray-200' : ''}`}
             style={{
               backgroundColor: design.bgColor,
+              width: design.frame === 'circle' ? '288px' : 'auto',
+              height: design.frame === 'circle' ? '288px' : 'auto',
+              display: design.frame === 'circle' ? 'flex' : 'block',
+              alignItems: design.frame === 'circle' ? 'center' : 'initial',
+              justifyContent: design.frame === 'circle' ? 'center' : 'initial',
             }}
           >
             <div className="relative">

@@ -181,12 +181,19 @@ END:VCARD`;
                         link.designSettings?.frame === 'rounded'
                           ? 'rounded-xl'
                           : link.designSettings?.frame === 'circle'
-                          ? 'rounded-full'
+                          ? 'rounded-full overflow-hidden'
                           : link.designSettings?.frame === 'square'
                           ? 'rounded-lg'
                           : ''
                       } ${link.designSettings?.frame !== 'none' && link.designSettings?.frame ? 'shadow-sm border-2 border-gray-200' : ''}`}
-                      style={{ backgroundColor: link.designSettings?.bgColor || '#ffffff' }}
+                      style={{ 
+                        backgroundColor: link.designSettings?.bgColor || '#ffffff',
+                        width: link.designSettings?.frame === 'circle' ? '166px' : 'auto',
+                        height: link.designSettings?.frame === 'circle' ? '166px' : 'auto',
+                        display: link.designSettings?.frame === 'circle' ? 'flex' : 'block',
+                        alignItems: link.designSettings?.frame === 'circle' ? 'center' : 'initial',
+                        justifyContent: link.designSettings?.frame === 'circle' ? 'center' : 'initial',
+                      }}
                     >
                       <QRCodeSVG
                         value={getQRValue(link)}

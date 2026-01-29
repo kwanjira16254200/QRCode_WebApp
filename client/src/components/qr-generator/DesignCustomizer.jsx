@@ -11,45 +11,64 @@ const DesignCustomizer = ({ design, onChange }) => {
   };
 
   const handleLogoUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      // Compress image before upload
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 200;
-          const MAX_HEIGHT = 200;
-          let width = img.width;
-          let height = img.height;
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-          // Calculate new dimensions
-          if (width > height) {
-            if (width > MAX_WIDTH) {
-              height *= MAX_WIDTH / width;
-              width = MAX_WIDTH;
-            }
-          } else {
-            if (height > MAX_HEIGHT) {
-              width *= MAX_HEIGHT / height;
-              height = MAX_HEIGHT;
-            }
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-
-          // Convert to base64 with compression (0.7 quality)
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-          handleChange('logo', compressedBase64);
-        };
-        img.src = event.target.result;
-      };
-      reader.readAsDataURL(file);
+    // Check file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      alert('File size must be less than 2MB');
+      return;
     }
+
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload an image file (PNG, JPG, etc.)');
+      return;
+    }
+
+    // Compress image before upload
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 200;
+        const MAX_HEIGHT = 200;
+        let width = img.width;
+        let height = img.height;
+
+        // Calculate new dimensions
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Convert to base64 with compression (0.7 quality for JPEG, 0.9 for PNG)
+        const isPng = file.type === 'image/png';
+        const compressedBase64 = canvas.toDataURL(isPng ? 'image/png' : 'image/jpeg', isPng ? 0.9 : 0.7);
+        handleChange('logo', compressedBase64);
+      };
+      img.onerror = () => {
+        alert('Failed to load image. Please try another file.');
+      };
+      img.src = event.target.result;
+    };
+    reader.onerror = () => {
+      alert('Failed to read file. Please try again.');
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
