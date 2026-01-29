@@ -2,7 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/**/*.js",
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "client/dist"
+      }
+    },
+    {
+      "src": "api/r/[shortCode].js",
       "use": "@vercel/node"
     }
   ],
@@ -12,12 +19,12 @@
       "dest": "/api/r/[shortCode]?shortCode=$1"
     },
     {
-      "src": "/s/([^/]+)",
-      "dest": "/api/s/[shortCode]?shortCode=$1"
+      "src": "/assets/(.*)",
+      "dest": "/assets/$1"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "/api/index"
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
