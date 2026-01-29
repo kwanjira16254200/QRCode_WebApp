@@ -1,4 +1,4 @@
-import { Link2, FileText, Mail, Phone, MessageSquare, Wifi, User, MapPin, FileType, Video, Image as ImageIcon, Facebook, Instagram } from 'lucide-react';
+import { Link2, FileText, Mail, Phone, MessageSquare, Wifi, User, MapPin, FileDown, Video, Image as ImageIcon, Facebook, Instagram } from 'lucide-react';
 
 const qrTypes = [
   {
@@ -12,7 +12,7 @@ const qrTypes = [
     id: 'pdf',
     name: 'PDF',
     description: 'Share PDF document',
-    icon: FileType,
+    icon: FileDown,
     color: 'red',
   },
   {

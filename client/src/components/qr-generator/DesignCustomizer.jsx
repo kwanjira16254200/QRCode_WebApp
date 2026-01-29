@@ -81,17 +81,23 @@ const DesignCustomizer = ({ design, onChange }) => {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">Frame Style</label>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {['none', 'square', 'rounded', 'circle'].map((frame) => (
+              {[
+                { id: 'none', label: 'None', icon: <div className="w-12 h-12 border-2 border-gray-400"></div> },
+                { id: 'square', label: 'Square', icon: <div className="w-12 h-12 border-4 border-gray-400 rounded"></div> },
+                { id: 'rounded', label: 'Rounded', icon: <div className="w-12 h-12 border-4 border-gray-400 rounded-xl"></div> },
+                { id: 'circle', label: 'Circle', icon: <div className="w-12 h-12 border-4 border-gray-400 rounded-full"></div> }
+              ].map((frame) => (
                 <button
-                  key={frame}
-                  onClick={() => handleChange('frame', frame)}
-                  className={`p-4 border-2 rounded-lg capitalize transition-all ${
-                    design.frame === frame
-                      ? 'border-primary-500 bg-primary-50 text-primary-700'
+                  key={frame.id}
+                  onClick={() => handleChange('frame', frame.id)}
+                  className={`p-4 border-2 rounded-lg transition-all flex flex-col items-center space-y-2 ${
+                    design.frame === frame.id
+                      ? 'border-orange-500 bg-orange-50'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
-                  {frame}
+                  {frame.icon}
+                  <span className="text-xs font-medium">{frame.label}</span>
                 </button>
               ))}
             </div>
@@ -101,17 +107,52 @@ const DesignCustomizer = ({ design, onChange }) => {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">QR Pattern</label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {['square', 'dots', 'rounded'].map((pattern) => (
+              {[
+                { 
+                  id: 'square', 
+                  label: 'Square',
+                  icon: (
+                    <div className="grid grid-cols-3 gap-1">
+                      {[...Array(9)].map((_, i) => (
+                        <div key={i} className="w-2 h-2 bg-gray-700"></div>
+                      ))}
+                    </div>
+                  )
+                },
+                { 
+                  id: 'dots', 
+                  label: 'Dots',
+                  icon: (
+                    <div className="grid grid-cols-3 gap-1">
+                      {[...Array(9)].map((_, i) => (
+                        <div key={i} className="w-2 h-2 bg-gray-700 rounded-full"></div>
+                      ))}
+                    </div>
+                  )
+                },
+                { 
+                  id: 'rounded', 
+                  label: 'Rounded',
+                  icon: (
+                    <div className="grid grid-cols-3 gap-1">
+                      {[...Array(9)].map((_, i) => (
+                        <div key={i} className="w-2 h-2 bg-gray-700 rounded"></div>
+                      ))}
+                    </div>
+                  )
+                }
+              ].map((pattern) => (
                 <button
-                  key={pattern}
-                  onClick={() => handleChange('pattern', pattern)}
-                  className={`p-4 border-2 rounded-lg capitalize transition-all ${
-                    design.pattern === pattern
-                      ? 'border-primary-500 bg-primary-50 text-primary-700'
+                  key={pattern.id}
+                  onClick={() => handleChange('pattern', pattern.id)}
+                  className={`p-4 border-2 rounded-lg transition-all flex flex-col items-center space-y-2 ${
+                    design.pattern === pattern.id
+                      ? 'border-orange-500 bg-orange-50'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
-                  {pattern}
+                  {pattern.icon}
+                  <span className="text-xs font-medium">{pattern.label}</span>
                 </button>
               ))}
             </div>

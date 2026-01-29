@@ -70,20 +70,102 @@ const ContentForm = ({ qrType, content, onChange, shortCode, onCopyShortUrl, cop
         );
 
       case 'video':
+        const uploadedVideo = formData.uploadedVideo;
+        
+        const handleVideoUpload = (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          
+          const maxSize = 250 * 1024 * 1024; // 250MB
+          
+          if (file.size > maxSize) {
+            alert(`Video file size exceeds 250MB. File size: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+            return;
+          }
+          
+          if (!file.type.startsWith('video/')) {
+            alert('Please upload a video file');
+            return;
+          }
+          
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            handleChange('uploadedVideo', {
+              data: e.target.result,
+              name: file.name,
+              size: file.size,
+              type: file.type
+            });
+          };
+          reader.readAsDataURL(file);
+        };
+        
+        const handleRemoveVideo = () => {
+          handleChange('uploadedVideo', null);
+        };
+        
         return (
           <div className="space-y-4">
             {nameField}
+            
+            {/* Video Upload Section */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Video URL</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Upload Video</label>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-orange-500 transition-colors">
+                <input
+                  type="file"
+                  accept="video/*"
+                  onChange={handleVideoUpload}
+                  className="hidden"
+                  id="video-upload"
+                />
+                <label htmlFor="video-upload" className="cursor-pointer">
+                  <div className="flex flex-col items-center">
+                    <svg className="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <p className="text-sm text-gray-600 mb-1">Click to upload video</p>
+                    <p className="text-xs text-gray-500">Maximum size: 250MB</p>
+                  </div>
+                </label>
+              </div>
+              
+              {uploadedVideo && (
+                <div className="mt-3 p-3 bg-gray-50 rounded flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-purple-100 rounded flex items-center justify-center">
+                      <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">{uploadedVideo.name}</p>
+                      <p className="text-xs text-gray-500">{(uploadedVideo.size / 1024 / 1024).toFixed(2)}MB</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleRemoveVideo}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+            </div>
+            
+            {/* Video URL Section */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Or Enter Video URL</label>
               <input
                 type="url"
                 value={formData.url || ''}
                 onChange={(e) => handleChange('url', e.target.value)}
                 placeholder="https://youtube.com/watch?v=..."
                 className="input"
-                required
               />
-              <p className="mt-1 text-sm text-gray-500">YouTube, Vimeo, or any video URL</p>
+              <p className="mt-1 text-sm text-gray-500">Enter YouTube, Vimeo, or direct video link</p>
             </div>
           </div>
         );
@@ -380,20 +462,149 @@ const ContentForm = ({ qrType, content, onChange, shortCode, onCopyShortUrl, cop
         );
 
       case 'image':
+        const imageUrls = formData.imageUrls || [''];
+        const uploadedImages = formData.uploadedImages || [];
+        
+        const handleAddImageUrl = () => {
+          if (imageUrls.length < 7) {
+            handleChange('imageUrls', [...imageUrls, '']);
+          }
+        };
+        
+        const handleImageUrlChange = (index, value) => {
+          const newUrls = [...imageUrls];
+          newUrls[index] = value;
+          handleChange('imageUrls', newUrls);
+        };
+        
+        const handleRemoveImageUrl = (index) => {
+          const newUrls = imageUrls.filter((_, i) => i !== index);
+          handleChange('imageUrls', newUrls.length > 0 ? newUrls : ['']);
+        };
+        
+        const handleImageUpload = (e) => {
+          const files = Array.from(e.target.files);
+          const maxSize = 10 * 1024 * 1024; // 10MB
+          
+          let totalSize = uploadedImages.reduce((sum, img) => sum + (img.size || 0), 0);
+          const validFiles = [];
+          
+          for (const file of files) {
+            if (totalSize + file.size > maxSize) {
+              alert(`Total file size exceeds 10MB. Remaining space: ${((maxSize - totalSize) / 1024 / 1024).toFixed(2)}MB`);
+              break;
+            }
+            if (!file.type.startsWith('image/')) {
+              alert(`${file.name} is not an image file`);
+              continue;
+            }
+            totalSize += file.size;
+            validFiles.push(file);
+          }
+          
+          if (validFiles.length > 0) {
+            const readers = validFiles.map(file => {
+              return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve({ data: e.target.result, name: file.name, size: file.size });
+                reader.readAsDataURL(file);
+              });
+            });
+            
+            Promise.all(readers).then(results => {
+              handleChange('uploadedImages', [...uploadedImages, ...results]);
+            });
+          }
+        };
+        
+        const handleRemoveUploadedImage = (index) => {
+          const newImages = uploadedImages.filter((_, i) => i !== index);
+          handleChange('uploadedImages', newImages);
+        };
+        
         return (
           <div className="space-y-4">
             {nameField}
+            
+            {/* Image Upload Section */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Image URL</label>
-              <input
-                type="url"
-                value={formData.url || ''}
-                onChange={(e) => handleChange('url', e.target.value)}
-                placeholder="https://example.com/image.jpg"
-                className="input"
-                required
-              />
-              <p className="mt-1 text-sm text-gray-500">Enter the direct link to your image file</p>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Upload Images</label>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-orange-500 transition-colors">
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageUpload}
+                  className="hidden"
+                  id="image-upload"
+                />
+                <label htmlFor="image-upload" className="cursor-pointer">
+                  <div className="flex flex-col items-center">
+                    <svg className="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <p className="text-sm text-gray-600 mb-1">Click to upload images</p>
+                    <p className="text-xs text-gray-500">Maximum total size: 10MB</p>
+                  </div>
+                </label>
+              </div>
+              
+              {uploadedImages.length > 0 && (
+                <div className="mt-3 space-y-2">
+                  {uploadedImages.map((img, index) => (
+                    <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                      <div className="flex items-center space-x-2">
+                        <img src={img.data} alt={img.name} className="w-10 h-10 object-cover rounded" />
+                        <span className="text-sm text-gray-700">{img.name}</span>
+                        <span className="text-xs text-gray-500">({(img.size / 1024).toFixed(1)}KB)</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveUploadedImage(index)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            {/* Image URL Section */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Or Add Image URLs (Max 7 links)
+              </label>
+              {imageUrls.map((url, index) => (
+                <div key={index} className="flex items-center space-x-2 mb-2">
+                  <input
+                    type="url"
+                    value={url}
+                    onChange={(e) => handleImageUrlChange(index, e.target.value)}
+                    placeholder="https://example.com/image.jpg"
+                    className="input flex-1"
+                  />
+                  {imageUrls.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImageUrl(index)}
+                      className="px-3 py-2 text-red-500 hover:text-red-700"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              ))}
+              {imageUrls.length < 7 && (
+                <button
+                  type="button"
+                  onClick={handleAddImageUrl}
+                  className="mt-2 text-sm text-orange-600 hover:text-orange-700"
+                >
+                  + Add another image URL
+                </button>
+              )}
             </div>
           </div>
         );
