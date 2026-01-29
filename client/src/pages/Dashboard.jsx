@@ -2,7 +2,46 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../utils/api';
 import { Plus, QrCode, MousePointerClick, TrendingUp, ExternalLink, Edit, Trash2, BarChart3, Link2, FileText, Image as ImageIcon, Cloud } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
+import { useQRCode } from '../hooks/useQRCode';
+
+// QR Code Display Component for Dashboard
+const QRCodeDisplay = ({ value, design }) => {
+  const qrOptions = {
+    width: 150,
+    height: 150,
+    data: value,
+    margin: 10,
+    qrOptions: {
+      typeNumber: 0,
+      mode: 'Byte',
+      errorCorrectionLevel: 'H'
+    },
+    dotsOptions: {
+      color: design?.fgColor || '#000000',
+      type: design?.dotStyle || 'rounded'
+    },
+    cornersSquareOptions: {
+      color: design?.fgColor || '#000000',
+      type: design?.cornerStyle || 'extra-rounded'
+    },
+    cornersDotOptions: {
+      color: design?.fgColor || '#000000',
+      type: 'dot'
+    },
+    backgroundOptions: {
+      color: design?.bgColor || '#ffffff',
+    },
+    imageOptions: {
+      crossOrigin: 'anonymous',
+      margin: 10
+    },
+    image: design?.logo || undefined
+  };
+
+  const { qrCodeRef } = useQRCode(qrOptions);
+  
+  return <div ref={qrCodeRef} />;
+};
 
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
@@ -195,23 +234,9 @@ END:VCARD`;
                         justifyContent: link.designSettings?.frame === 'circle' ? 'center' : 'initial',
                       }}
                     >
-                      <QRCodeSVG
-                        value={getQRValue(link)}
-                        size={150}
-                        level="H"
-                        includeMargin={true}
-                        fgColor={link.designSettings?.fgColor || '#000000'}
-                        bgColor={link.designSettings?.bgColor || '#ffffff'}
-                        imageSettings={
-                          link.designSettings?.logo
-                            ? {
-                                src: link.designSettings.logo,
-                                height: 30,
-                                width: 30,
-                                excavate: true,
-                              }
-                            : undefined
-                        }
+                      <QRCodeDisplay 
+                        value={getQRValue(link)} 
+                        design={link.designSettings}
                       />
                     </div>
                   </div>

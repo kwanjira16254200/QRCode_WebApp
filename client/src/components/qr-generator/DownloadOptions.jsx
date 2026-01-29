@@ -2,53 +2,46 @@ import { useState } from 'react';
 import { Download, Save, LogIn } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { QRCodeSVG } from 'qrcode.react';
+import { useQRCode } from '../../hooks/useQRCode';
 
 const DownloadOptions = ({ qrData, design, onSaveDynamic }) => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
 
-  const downloadQR = (format) => {
-    const svg = document.querySelector('#qr-preview-download svg');
-    if (!svg) {
-      console.error('QR Code SVG not found');
-      alert('Unable to download QR Code. Please try again.');
-      return;
-    }
-
-    if (format === 'svg') {
-      const svgData = new XMLSerializer().serializeToString(svg);
-      const blob = new Blob([svgData], { type: 'image/svg+xml' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `qrcode-${Date.now()}.svg`;
-      link.click();
-      URL.revokeObjectURL(url);
-    } else if (format === 'png') {
-      const svgData = new XMLSerializer().serializeToString(svg);
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const img = new Image();
-
-      img.onload = () => {
-        canvas.width = img.width * 2;
-        canvas.height = img.height * 2;
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        canvas.toBlob((blob) => {
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `qrcode-${Date.now()}.png`;
-          link.click();
-          URL.revokeObjectURL(url);
-        });
-      };
-
-      img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
-    }
+  const qrOptions = {
+    width: 300,
+    height: 300,
+    data: qrData,
+    margin: 10,
+    qrOptions: {
+      typeNumber: 0,
+      mode: 'Byte',
+      errorCorrectionLevel: 'H'
+    },
+    dotsOptions: {
+      color: design.fgColor || '#000000',
+      type: design.dotStyle || 'rounded'
+    },
+    cornersSquareOptions: {
+      color: design.fgColor || '#000000',
+      type: design.cornerStyle || 'extra-rounded'
+    },
+    cornersDotOptions: {
+      color: design.fgColor || '#000000',
+      type: 'dot'
+    },
+    backgroundOptions: {
+      color: design.bgColor || '#ffffff',
+    },
+    imageOptions: {
+      crossOrigin: 'anonymous',
+      margin: 10
+    },
+    image: design.logo || undefined
   };
+
+  const { qrCodeRef, download } = useQRCode(qrOptions);
 
   const handleSaveDynamic = async () => {
     if (!isAuthenticated) {
@@ -75,7 +68,7 @@ const DownloadOptions = ({ qrData, design, onSaveDynamic }) => {
         <h2 className="text-xl font-bold text-gray-900 mb-4">Download Your QR Code</h2>
 
         {/* Preview */}
-        <div id="qr-preview-download" className="flex justify-center mb-6">
+        <div className="flex justify-center mb-6">
           <div
             className={`p-4 bg-white ${
               design.frame === 'rounded'
@@ -95,31 +88,14 @@ const DownloadOptions = ({ qrData, design, onSaveDynamic }) => {
               justifyContent: design.frame === 'circle' ? 'center' : 'initial',
             }}
           >
-            <QRCodeSVG
-              value={qrData}
-              size={300}
-              level="H"
-              includeMargin={true}
-              fgColor={design.fgColor}
-              bgColor={design.bgColor}
-              imageSettings={
-                design.logo
-                  ? {
-                      src: design.logo,
-                      height: 60,
-                      width: 60,
-                      excavate: true,
-                    }
-                  : undefined
-              }
-            />
+            <div ref={qrCodeRef} />
           </div>
         </div>
 
         {/* Download Buttons */}
         <div className="space-y-3">
           <button
-            onClick={() => downloadQR('png')}
+            onClick={() => download('png', `qrcode-${Date.now()}`)}
             className="w-full btn btn-primary flex items-center justify-center space-x-2"
           >
             <Download className="w-5 h-5" />
@@ -127,7 +103,7 @@ const DownloadOptions = ({ qrData, design, onSaveDynamic }) => {
           </button>
 
           <button
-            onClick={() => downloadQR('svg')}
+            onClick={() => download('svg', `qrcode-${Date.now()}`)}
             className="w-full btn btn-secondary flex items-center justify-center space-x-2"
           >
             <Download className="w-5 h-5" />

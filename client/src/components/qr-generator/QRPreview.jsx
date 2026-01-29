@@ -1,4 +1,4 @@
-import { QRCodeSVG } from 'qrcode.react';
+import { useQRCode } from '../../hooks/useQRCode';
 
 const QRPreview = ({ value, design }) => {
   if (!value) {
@@ -9,10 +9,39 @@ const QRPreview = ({ value, design }) => {
     );
   }
 
-  const getQRValue = () => {
-    // Return the formatted value based on QR type
-    return value;
+  const qrOptions = {
+    width: 256,
+    height: 256,
+    data: value,
+    margin: 10,
+    qrOptions: {
+      typeNumber: 0,
+      mode: 'Byte',
+      errorCorrectionLevel: 'H'
+    },
+    dotsOptions: {
+      color: design.fgColor || '#000000',
+      type: design.dotStyle || 'rounded'
+    },
+    cornersSquareOptions: {
+      color: design.fgColor || '#000000',
+      type: design.cornerStyle || 'extra-rounded'
+    },
+    cornersDotOptions: {
+      color: design.fgColor || '#000000',
+      type: 'dot'
+    },
+    backgroundOptions: {
+      color: design.bgColor || '#ffffff',
+    },
+    imageOptions: {
+      crossOrigin: 'anonymous',
+      margin: 10
+    },
+    image: design.logo || undefined
   };
+
+  const { qrCodeRef } = useQRCode(qrOptions);
 
   return (
     <div className="sticky top-4">
@@ -39,27 +68,7 @@ const QRPreview = ({ value, design }) => {
               justifyContent: design.frame === 'circle' ? 'center' : 'initial',
             }}
           >
-            <div className="relative">
-              <QRCodeSVG
-                id="qr-preview-svg"
-                value={getQRValue()}
-                size={256}
-                level="H"
-                includeMargin={true}
-                fgColor={design.fgColor}
-                bgColor={design.bgColor}
-                imageSettings={
-                  design.logo
-                    ? {
-                        src: design.logo,
-                        height: 48,
-                        width: 48,
-                        excavate: true,
-                      }
-                    : undefined
-                }
-              />
-            </div>
+            <div ref={qrCodeRef} />
           </div>
         </div>
 

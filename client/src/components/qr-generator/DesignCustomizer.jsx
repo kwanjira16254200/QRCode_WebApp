@@ -103,58 +103,37 @@ const DesignCustomizer = ({ design, onChange }) => {
             </div>
           </div>
 
-          {/* QR Pattern */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">QR Pattern</label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {[
-                { 
-                  id: 'square', 
-                  label: 'Square',
-                  icon: (
-                    <div className="grid grid-cols-3 gap-1">
-                      {[...Array(9)].map((_, i) => (
-                        <div key={i} className="w-2 h-2 bg-gray-700"></div>
-                      ))}
-                    </div>
-                  )
-                },
-                { 
-                  id: 'dots', 
-                  label: 'Dots',
-                  icon: (
-                    <div className="grid grid-cols-3 gap-1">
-                      {[...Array(9)].map((_, i) => (
-                        <div key={i} className="w-2 h-2 bg-gray-700 rounded-full"></div>
-                      ))}
-                    </div>
-                  )
-                },
-                { 
-                  id: 'rounded', 
-                  label: 'Rounded',
-                  icon: (
-                    <div className="grid grid-cols-3 gap-1">
-                      {[...Array(9)].map((_, i) => (
-                        <div key={i} className="w-2 h-2 bg-gray-700 rounded"></div>
-                      ))}
-                    </div>
-                  )
-                }
-              ].map((pattern) => (
-                <button
-                  key={pattern.id}
-                  onClick={() => handleChange('pattern', pattern.id)}
-                  className={`p-4 border-2 rounded-lg transition-all flex flex-col items-center space-y-2 ${
-                    design.pattern === pattern.id
-                      ? 'border-orange-500 bg-orange-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  {pattern.icon}
-                  <span className="text-xs font-medium">{pattern.label}</span>
-                </button>
-              ))}
+          {/* QR Pattern Styles */}
+          <div className="space-y-4">
+            {/* Dot Pattern */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">QR Pattern (Dot Style)</label>
+              <select
+                value={design.dotStyle || 'rounded'}
+                onChange={(e) => handleChange('dotStyle', e.target.value)}
+                className="w-full border-2 border-gray-200 rounded-lg p-3 hover:border-gray-300 focus:border-orange-500 focus:outline-none"
+              >
+                <option value="square">Square (จุดสี่เหลี่ยม)</option>
+                <option value="dots">Dots (จุดกลม)</option>
+                <option value="rounded">Rounded (จุดมุมมน)</option>
+                <option value="extra-rounded">Extra Rounded (จุดมุมมนมาก)</option>
+                <option value="classy">Classy (สไตล์หรูหรา)</option>
+                <option value="classy-rounded">Classy Rounded (หรูหราแบบมุมมน)</option>
+              </select>
+            </div>
+
+            {/* Corner Style */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Corner Style (รูปแบบมุม)</label>
+              <select
+                value={design.cornerStyle || 'extra-rounded'}
+                onChange={(e) => handleChange('cornerStyle', e.target.value)}
+                className="w-full border-2 border-gray-200 rounded-lg p-3 hover:border-gray-300 focus:border-orange-500 focus:outline-none"
+              >
+                <option value="square">Square (มุมสี่เหลี่ยม)</option>
+                <option value="extra-rounded">Extra Rounded (มุมมนมาก)</option>
+                <option value="dot">Dot (มุมแบบจุด)</option>
+              </select>
             </div>
           </div>
 
