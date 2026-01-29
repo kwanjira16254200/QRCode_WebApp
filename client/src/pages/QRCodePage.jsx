@@ -36,10 +36,24 @@ export default function QRCodePage() {
     switch (qrType) {
       case 'url':
       case 'pdf':
-      case 'video':
       case 'facebook':
       case 'instagram':
         return content.url || '';
+      case 'image':
+        // For image QR, return first available: uploaded image data, first URL, or placeholder
+        if (content.uploadedImages && content.uploadedImages.length > 0) {
+          return content.uploadedImages[0].data;
+        }
+        if (content.imageUrls && content.imageUrls.length > 0 && content.imageUrls[0]) {
+          return content.imageUrls[0];
+        }
+        return 'image-qr-code';
+      case 'video':
+        // For video QR, return uploaded video data or URL
+        if (content.uploadedVideo) {
+          return content.uploadedVideo.data;
+        }
+        return content.url || 'video-qr-code';
       case 'whatsapp':
         return `https://wa.me/${content.phone?.replace(/[^0-9]/g, '')}${content.message ? `?text=${encodeURIComponent(content.message)}` : ''}`;
       case 'text':
@@ -82,9 +96,28 @@ END:VCARD`;
         alert('Please enter a QR Code Name');
         return;
       }
-      if (!getQRValue()) {
-        alert('Please fill in the required fields');
-        return;
+      
+      // Special validation for image and video types
+      if (qrType === 'image') {
+        const hasUploadedImages = content.uploadedImages && content.uploadedImages.length > 0;
+        const hasImageUrls = content.imageUrls && content.imageUrls.some(url => url && url.trim());
+        if (!hasUploadedImages && !hasImageUrls) {
+          alert('Please upload images or add image URLs');
+          return;
+        }
+      } else if (qrType === 'video') {
+        const hasUploadedVideo = content.uploadedVideo;
+        const hasVideoUrl = content.url && content.url.trim();
+        if (!hasUploadedVideo && !hasVideoUrl) {
+          alert('Please upload a video or add a video URL');
+          return;
+        }
+      } else {
+        // For other types, check if QR value is valid
+        if (!getQRValue()) {
+          alert('Please fill in the required fields');
+          return;
+        }
       }
     }
     if (currentStep < 4) {

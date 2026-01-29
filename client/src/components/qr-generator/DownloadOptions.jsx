@@ -10,8 +10,12 @@ const DownloadOptions = ({ qrData, design, onSaveDynamic }) => {
   const [saving, setSaving] = useState(false);
 
   const downloadQR = (format) => {
-    const svg = document.querySelector('#qr-preview svg');
-    if (!svg) return;
+    const svg = document.querySelector('#qr-preview-download svg');
+    if (!svg) {
+      console.error('QR Code SVG not found');
+      alert('Unable to download QR Code. Please try again.');
+      return;
+    }
 
     if (format === 'svg') {
       const svgData = new XMLSerializer().serializeToString(svg);
@@ -71,7 +75,7 @@ const DownloadOptions = ({ qrData, design, onSaveDynamic }) => {
         <h2 className="text-xl font-bold text-gray-900 mb-4">Download Your QR Code</h2>
 
         {/* Preview */}
-        <div id="qr-preview" className="flex justify-center mb-6">
+        <div id="qr-preview-download" className="flex justify-center mb-6">
           <div
             className={`p-4 bg-white ${
               design.frame === 'rounded'
