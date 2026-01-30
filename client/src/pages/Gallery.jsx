@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
-import api from '../utils/api';
+import { supabase } from '../config/supabase';
 
 const Gallery = () => {
   const { id } = useParams();
@@ -19,9 +19,21 @@ const Gallery = () => {
   const fetchGallery = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/galleries/${id}`);
-      setGallery(response.data);
-      setError(null);
+      
+      const { data: gallery, error } = await supabase
+        .from('galleries')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (error || !gallery) {
+        console.error('Error fetching gallery:', error);
+        setError('Gallery not found or has been deleted');
+        setGallery(null);
+      } else {
+        setGallery(gallery);
+        setError(null);
+      }
     } catch (err) {
       console.error('Error fetching gallery:', err);
       setError('Gallery not found or has been deleted');

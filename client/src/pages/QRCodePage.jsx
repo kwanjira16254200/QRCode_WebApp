@@ -130,8 +130,10 @@ END:VCARD`;
       
       // Special handling for image QR with file uploads
       if (qrType === 'image' && content.imageFiles && content.imageFiles.length > 0) {
-        // Import uploadMultipleImages dynamically
+        // Import uploadMultipleImages and supabase dynamically
         const { uploadMultipleImages } = await import('../utils/supabaseStorage');
+        const { supabase } = await import('../config/supabase');
+        const { nanoid } = await import('nanoid');
         
         // Get user ID from localStorage
         const userId = localStorage.getItem('userId') || 'anonymous';
@@ -139,15 +141,28 @@ END:VCARD`;
         // Upload images to Supabase Storage
         const imageUrls = await uploadMultipleImages(content.imageFiles, userId);
         
-        // If multiple images, create gallery
+        // If multiple images, create gallery directly in Supabase
         if (imageUrls.length > 1) {
-          const galleryResponse = await api.post('/galleries', {
-            title: content.name || 'Image Gallery',
-            images: imageUrls
-          });
+          const galleryId = nanoid(10);
+          
+          const { data: gallery, error: galleryError } = await supabase
+            .from('galleries')
+            .insert([{
+              id: galleryId,
+              title: content.name || 'Image Gallery',
+              images: imageUrls,
+              user_id: userId
+            }])
+            .select()
+            .single();
+          
+          if (galleryError) {
+            console.error('Gallery creation error:', galleryError);
+            throw new Error('Failed to create gallery: ' + galleryError.message);
+          }
           
           // Update QR value to point to gallery
-          qrValue = `${window.location.origin}/gallery/${galleryResponse.data.id}`;
+          qrValue = `${window.location.origin}/gallery/${gallery.id}`;
         } else if (imageUrls.length === 1) {
           // Single image - point directly to the image
           qrValue = imageUrls[0];
