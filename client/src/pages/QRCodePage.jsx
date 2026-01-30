@@ -136,7 +136,8 @@ END:VCARD`;
         const { nanoid } = await import('nanoid');
         
         // Get user ID from localStorage
-        const userId = localStorage.getItem('userId') || 'anonymous';
+        //const userId = localStorage.getItem('userId') || 'anonymous';
+        const userId = localStorage.getItem('userId') || null;
         
         // Upload images to Supabase Storage
         const imageUrls = await uploadMultipleImages(content.imageFiles, userId);
