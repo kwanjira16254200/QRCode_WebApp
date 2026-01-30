@@ -31,7 +31,7 @@ export default function QRCodePage() {
     logo: null,
   });
 
-  const getQRValue = async () => {
+  const getQRValue = () => {
     if (!qrType || !content) return '';
 
     switch (qrType) {
@@ -44,7 +44,7 @@ export default function QRCodePage() {
         // For image QR with files, we'll handle this in handleSaveDynamic
         // This is just for preview - return placeholder
         if (content.imageFiles && content.imageFiles.length > 0) {
-          return 'Gallery QR Code (will be generated after upload)';
+          return 'https://placeholder.com/gallery-preview';
         }
         return '';
       case 'video':
@@ -127,7 +127,7 @@ END:VCARD`;
 
   const handleSaveDynamic = async () => {
     try {
-      let qrValue = await getQRValue();
+      let qrValue = getQRValue();
       
       // Special handling for image QR with file uploads
       if (qrType === 'image' && content.imageFiles && content.imageFiles.length > 0) {
