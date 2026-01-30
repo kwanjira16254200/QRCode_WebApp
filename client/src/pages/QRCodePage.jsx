@@ -41,9 +41,9 @@ export default function QRCodePage() {
       case 'instagram':
         return content.url || '';
       case 'image':
-        // For image QR with files, return placeholder for preview
+        // For image QR with files, show preview message
         if (content.imageFiles && content.imageFiles.length > 0) {
-          return 'https://via.placeholder.com/400x400?text=Gallery+Preview';
+          return 'QR Code will be generated after saving';
         }
         return '';
       case 'video':
@@ -170,7 +170,7 @@ END:VCARD`;
         }
       }
 
-      const response = await api.post('/links', {
+      await api.post('/links', {
         title: content.name || `${qrType.toUpperCase()} QR Code`,
         originalUrl: qrValue,
         isDynamic: true,
@@ -180,8 +180,7 @@ END:VCARD`;
       });
 
       alert('QR Code saved successfully!');
-      // Redirect to edit page so user can see and download the final QR code
-      navigate(`/edit/${response.data._id}`);
+      navigate('/dashboard');
     } catch (error) {
       console.error('Error saving QR:', error);
       alert('Error saving QR Code: ' + (error.response?.data?.message || error.message));

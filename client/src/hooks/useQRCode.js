@@ -19,10 +19,14 @@ export const useQRCode = (options) => {
   }, [options]);
 
   const download = (format = 'png', name = 'qrcode') => {
-    qrCodeInstance.current.download({
-      extension: format,
-      name: name
-    });
+    if (qrCodeInstance.current) {
+      qrCodeInstance.current.download({
+        extension: format,
+        name: name
+      });
+    } else {
+      console.error('QR Code instance not ready');
+    }
   };
 
   return { qrCodeRef, download };

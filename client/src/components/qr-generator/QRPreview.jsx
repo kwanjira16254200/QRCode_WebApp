@@ -9,6 +9,31 @@ const QRPreview = ({ value, design }) => {
     );
   }
 
+  // Special handling for image upload preview
+  if (value === 'QR Code will be generated after saving') {
+    return (
+      <div className="lg:sticky lg:top-4">
+        <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 text-center">Preview</h3>
+          
+          <div className="flex justify-center">
+            <div className="flex items-center justify-center h-64 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+              <div className="text-center p-4">
+                <p className="text-gray-600 font-medium mb-2">📸 Images Ready</p>
+                <p className="text-gray-400 text-sm">QR Code will be generated</p>
+                <p className="text-gray-400 text-sm">after saving</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-3 sm:mt-4 p-2 sm:p-3 bg-blue-50 rounded-lg">
+            <p className="text-xs text-blue-600 text-center">✓ Your images are uploaded and ready. The QR code will link to your gallery.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const qrOptions = {
     width: 256,
     height: 256,
