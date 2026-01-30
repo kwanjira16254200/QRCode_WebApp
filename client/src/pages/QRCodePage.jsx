@@ -38,6 +38,7 @@ export default function QRCodePage() {
       // Generate a temporary preview URL
       const tempId = Math.random().toString(36).substring(7);
       const previewUrl = `${window.location.origin}/gallery/${tempId}`;
+      console.log('Setting preview gallery URL:', previewUrl);
       setPreviewGalleryUrl(previewUrl);
     } else {
       setPreviewGalleryUrl('');
@@ -55,6 +56,7 @@ export default function QRCodePage() {
         return content.url || '';
       case 'image':
         // For image QR with files, use preview gallery URL if available
+        console.log('Image QR - previewGalleryUrl:', previewGalleryUrl, 'imageFiles:', content.imageFiles?.length);
         if (previewGalleryUrl) {
           return previewGalleryUrl;
         }
