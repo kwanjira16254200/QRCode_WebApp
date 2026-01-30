@@ -170,6 +170,8 @@ END:VCARD`;
         }
       }
 
+      console.log('Saving QR Code with design settings:', design);
+      
       await api.post('/links', {
         title: content.name || `${qrType.toUpperCase()} QR Code`,
         originalUrl: qrValue,

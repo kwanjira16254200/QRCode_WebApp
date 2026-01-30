@@ -5,6 +5,8 @@ export const createLink = async (req, res) => {
   try {
     const { title, originalUrl, isDynamic = true, qrType = 'url', content, designSettings } = req.body;
 
+    console.log('Backend received designSettings:', designSettings);
+
     if (!title || !originalUrl) {
       return res.status(400).json({ message: 'Title and URL are required' });
     }
@@ -17,23 +19,19 @@ export const createLink = async (req, res) => {
 
     const shortCode = nanoid(8);
 
-    // Prepare insert data - only include fields that exist in the table
+    // Prepare insert data
     const insertData = {
       user_id: req.user.id,
       title,
       original_url: originalUrl,
-      short_code: shortCode
+      short_code: shortCode,
+      is_dynamic: isDynamic,
+      qr_type: qrType,
+      content: content || null,
+      design_settings: designSettings || null
     };
 
-    // Try to add new fields, but don't fail if they don't exist
-    try {
-      insertData.is_dynamic = isDynamic;
-      insertData.qr_type = qrType;
-      insertData.content = content || null;
-      insertData.design_settings = designSettings || null;
-    } catch (e) {
-      console.warn('Some fields may not exist in links table:', e.message);
-    }
+    console.log('Inserting data with design_settings:', insertData.design_settings);
 
     const { data: link, error } = await supabase
       .from('links')
