@@ -126,10 +126,9 @@ END:VCARD`;
 
   const handleSaveDynamic = async () => {
     try {
-      const shortCode = nanoid(8);
       const qrValue = getQRValue();
 
-      await api.post('/links', {
+      const response = await api.post('/links', {
         title: content.name || `${qrType.toUpperCase()} QR Code`,
         originalUrl: qrValue,
         isDynamic: true,
@@ -139,7 +138,8 @@ END:VCARD`;
       });
 
       alert('QR Code saved successfully!');
-      navigate('/dashboard');
+      // Navigate to edit page where user can see the QR with short URL
+      navigate(`/edit/${response.data._id}`);
     } catch (error) {
       console.error('Error saving QR:', error);
       throw error;
@@ -177,25 +177,25 @@ END:VCARD`;
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">QR Code Generator</h1>
-          <p className="text-gray-600">Create beautiful, customizable QR codes in minutes</p>
+    <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">QR Code Generator</h1>
+          <p className="text-sm sm:text-base text-gray-600">Create beautiful, customizable QR codes in minutes</p>
         </div>
 
         <StepIndicator currentStep={currentStep} steps={steps} />
 
-        <div className="mt-8">{renderStep()}</div>
+        <div className="mt-6 sm:mt-8">{renderStep()}</div>
 
         {/* Navigation Buttons */}
         {currentStep > 1 && currentStep < 4 && (
-          <div className="max-w-4xl mx-auto px-4 mt-8 flex justify-between">
-            <button onClick={handleBack} className="btn btn-secondary flex items-center space-x-2">
+          <div className="max-w-4xl mx-auto px-4 mt-6 sm:mt-8 flex flex-col sm:flex-row justify-between gap-3 sm:gap-0">
+            <button onClick={handleBack} className="btn btn-secondary flex items-center justify-center space-x-2 w-full sm:w-auto">
               <ArrowLeft className="w-5 h-5" />
               <span>Back</span>
             </button>
-            <button onClick={handleNext} className="btn btn-primary flex items-center space-x-2">
+            <button onClick={handleNext} className="btn btn-primary flex items-center justify-center space-x-2 w-full sm:w-auto">
               <span>Next</span>
               <ArrowRight className="w-5 h-5" />
             </button>

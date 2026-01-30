@@ -94,7 +94,13 @@ const Dashboard = () => {
   };
 
   const getQRValue = (link) => {
-    // If link has content stored, use it to generate proper QR value
+    // For Dynamic QR codes, always use the short URL so it redirects through our backend
+    // This enables analytics, editing, and proper tracking
+    if (link.isDynamic && link.shortCode) {
+      return getShortUrl(link.shortCode);
+    }
+    
+    // For Static QR codes, use the direct content
     if (link.content && link.qrType) {
       const content = link.content;
       switch (link.qrType) {
@@ -143,22 +149,22 @@ END:VCARD`;
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-between items-center mb-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-600 mt-1">Manage your QR Codes</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard</h1>
+            <p className="text-sm sm:text-base text-gray-600 mt-1">Manage your QR Codes</p>
           </div>
           <Link
             to="/qr-generator"
-            className="btn btn-primary flex items-center space-x-2"
+            className="btn btn-primary flex items-center justify-center space-x-2 w-full sm:w-auto"
           >
             <Plus className="w-5 h-5" />
             <span>Create QR Code</span>
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <div className="card">
             <div className="flex items-center justify-between">
               <div>
@@ -205,9 +211,9 @@ END:VCARD`;
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {links.map((link) => (
-                <div key={link._id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow relative">
+                <div key={link._id} className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow relative">
                   <div className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-md border border-gray-200">
                     {link.qrType === 'url' && <Link2 className="w-4 h-4 text-blue-600" />}
                     {link.qrType === 'text' && <FileText className="w-4 h-4 text-purple-600" />}

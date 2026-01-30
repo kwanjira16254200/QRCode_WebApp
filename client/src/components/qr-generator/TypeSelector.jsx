@@ -89,28 +89,28 @@ const qrTypes = [
 
 const TypeSelector = ({ onSelectType }) => {
   return (
-    <div className="max-w-5xl mx-auto px-4">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Choose QR Code Type</h2>
-        <p className="text-gray-600">Select the type of content you want to encode in your QR code</p>
+    <div className="max-w-5xl mx-auto px-4 sm:px-6">
+      <div className="text-center mb-6 sm:mb-8">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Choose QR Code Type</h2>
+        <p className="text-sm sm:text-base text-gray-600">Select the type of content you want to encode in your QR code</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
         {qrTypes.map((type) => {
           const Icon = type.icon;
           return (
             <button
               key={type.id}
               onClick={() => onSelectType(type.id)}
-              className="p-6 bg-white border-2 border-gray-200 rounded-xl transition-all transform hover:scale-105 hover:shadow-lg hover:border-orange-500 hover:bg-orange-50"
+              className="p-4 sm:p-6 bg-white border-2 border-gray-200 rounded-xl transition-all transform hover:scale-105 hover:shadow-lg hover:border-orange-500 hover:bg-orange-50 active:scale-95"
             >
-              <div className="flex flex-col items-center text-center space-y-3">
-                <div className="p-3 rounded-full bg-orange-50">
-                  <Icon className="w-8 h-8 text-orange-500" />
+              <div className="flex flex-col items-center text-center space-y-2 sm:space-y-3">
+                <div className="p-2 sm:p-3 rounded-full bg-orange-50">
+                  <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-orange-500" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg mb-1 text-gray-900">{type.name}</h3>
-                  <p className="text-sm text-gray-600">{type.description}</p>
+                  <h3 className="font-semibold text-sm sm:text-lg mb-1 text-gray-900">{type.name}</h3>
+                  <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">{type.description}</p>
                 </div>
               </div>
             </button>

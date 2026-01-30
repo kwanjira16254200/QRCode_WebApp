@@ -44,13 +44,13 @@ const QRPreview = ({ value, design }) => {
   const { qrCodeRef } = useQRCode(qrOptions);
 
   return (
-    <div className="sticky top-4">
-      <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">Preview</h3>
+    <div className="lg:sticky lg:top-4">
+      <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 text-center">Preview</h3>
         
         <div className="flex justify-center">
           <div
-            className={`p-4 bg-white ${
+            className={`p-3 sm:p-4 bg-white ${
               design.frame === 'rounded'
                 ? 'rounded-2xl'
                 : design.frame === 'circle'
@@ -72,7 +72,7 @@ const QRPreview = ({ value, design }) => {
           </div>
         </div>
 
-        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+        <div className="mt-3 sm:mt-4 p-2 sm:p-3 bg-gray-50 rounded-lg">
           <p className="text-xs text-gray-600 text-center break-all">{value}</p>
         </div>
       </div>
