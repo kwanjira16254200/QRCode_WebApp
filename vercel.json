@@ -1,23 +1,25 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "api/**/*.js",
-      "use": "@vercel/node"
+  "buildCommand": "cd client && npm ci && npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm ci && cd client && npm ci",
+  "functions": {
+    "api/r/[shortCode].js": {
+      "memory": 1024,
+      "maxDuration": 10
     }
-  ],
-  "routes": [
+  },
+  "rewrites": [
     {
-      "src": "/r/([^/]+)",
-      "dest": "/api/r/[shortCode]?shortCode=$1"
+      "source": "/r/:shortCode",
+      "destination": "/api/r/[shortCode]"
     },
     {
-      "src": "/s/([^/]+)",
-      "dest": "/api/s/[shortCode]?shortCode=$1"
+      "source": "/gallery/:id",
+      "destination": "/gallery/:id"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "/api/index"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
