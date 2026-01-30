@@ -23,7 +23,7 @@ export default function QRCodePage() {
   const [qrType, setQrType] = useState('');
   const [content, setContent] = useState({});
   const [design, setDesign] = useState({
-    frame: 'none',
+    frame: 'square',
     dotStyle: 'rounded',
     cornerStyle: 'extra-rounded',
     fgColor: '#000000',
@@ -128,7 +128,7 @@ END:VCARD`;
     try {
       const qrValue = getQRValue();
 
-      const response = await api.post('/links', {
+      await api.post('/links', {
         title: content.name || `${qrType.toUpperCase()} QR Code`,
         originalUrl: qrValue,
         isDynamic: true,
@@ -138,8 +138,7 @@ END:VCARD`;
       });
 
       alert('QR Code saved successfully!');
-      // Navigate to edit page where user can see the QR with short URL
-      navigate(`/edit/${response.data._id}`);
+      navigate('/dashboard');
     } catch (error) {
       console.error('Error saving QR:', error);
       throw error;

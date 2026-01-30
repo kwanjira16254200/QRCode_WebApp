@@ -32,6 +32,15 @@ const ContentForm = ({ qrType, content, onChange, shortCode, onCopyShortUrl, cop
 
     switch (qrType) {
       case 'url':
+        const handleUrlChange = (value) => {
+          // Auto-add https:// if no protocol is specified
+          let url = value.trim();
+          if (url && !url.match(/^https?:\/\//i)) {
+            url = 'https://' + url;
+          }
+          handleChange('url', url);
+        };
+        
         return (
           <div className="space-y-4">
             {nameField}
@@ -40,17 +49,26 @@ const ContentForm = ({ qrType, content, onChange, shortCode, onCopyShortUrl, cop
               <input
                 type="url"
                 value={formData.url || ''}
-                onChange={(e) => handleChange('url', e.target.value)}
-                placeholder="https://example.com"
+                onChange={(e) => handleUrlChange(e.target.value)}
+                onBlur={(e) => handleUrlChange(e.target.value)}
+                placeholder="example.com or https://example.com"
                 className="input"
                 required
               />
-              <p className="mt-1 text-sm text-gray-500">Enter the full URL including https://</p>
+              <p className="mt-1 text-sm text-gray-500">https:// will be added automatically</p>
             </div>
           </div>
         );
 
       case 'pdf':
+        const handlePdfUrlChange = (value) => {
+          let url = value.trim();
+          if (url && !url.match(/^https?:\/\//i)) {
+            url = 'https://' + url;
+          }
+          handleChange('url', url);
+        };
+        
         return (
           <div className="space-y-4">
             {nameField}
@@ -59,17 +77,26 @@ const ContentForm = ({ qrType, content, onChange, shortCode, onCopyShortUrl, cop
               <input
                 type="url"
                 value={formData.url || ''}
-                onChange={(e) => handleChange('url', e.target.value)}
-                placeholder="https://example.com/document.pdf"
+                onChange={(e) => handlePdfUrlChange(e.target.value)}
+                onBlur={(e) => handlePdfUrlChange(e.target.value)}
+                placeholder="example.com/document.pdf"
                 className="input"
                 required
               />
-              <p className="mt-1 text-sm text-gray-500">Enter the direct link to your PDF file</p>
+              <p className="mt-1 text-sm text-gray-500">https:// will be added automatically</p>
             </div>
           </div>
         );
 
       case 'video':
+        const handleVideoUrlChange = (value) => {
+          let url = value.trim();
+          if (url && !url.match(/^https?:\/\//i)) {
+            url = 'https://' + url;
+          }
+          handleChange('url', url);
+        };
+        
         return (
           <div className="space-y-4">
             {nameField}
@@ -80,17 +107,26 @@ const ContentForm = ({ qrType, content, onChange, shortCode, onCopyShortUrl, cop
               <input
                 type="url"
                 value={formData.url || ''}
-                onChange={(e) => handleChange('url', e.target.value)}
-                placeholder="https://youtube.com/watch?v=..."
+                onChange={(e) => handleVideoUrlChange(e.target.value)}
+                onBlur={(e) => handleVideoUrlChange(e.target.value)}
+                placeholder="youtube.com/watch?v=..."
                 className="input"
                 required
               />
-              <p className="mt-1 text-sm text-gray-500">Enter YouTube, Vimeo, or direct video link</p>
+              <p className="mt-1 text-sm text-gray-500">https:// will be added automatically</p>
             </div>
           </div>
         );
 
       case 'facebook':
+        const handleFacebookUrlChange = (value) => {
+          let url = value.trim();
+          if (url && !url.match(/^https?:\/\//i)) {
+            url = 'https://' + url;
+          }
+          handleChange('url', url);
+        };
+        
         return (
           <div className="space-y-4">
             {nameField}
@@ -99,17 +135,26 @@ const ContentForm = ({ qrType, content, onChange, shortCode, onCopyShortUrl, cop
               <input
                 type="url"
                 value={formData.url || ''}
-                onChange={(e) => handleChange('url', e.target.value)}
-                placeholder="https://facebook.com/yourpage"
+                onChange={(e) => handleFacebookUrlChange(e.target.value)}
+                onBlur={(e) => handleFacebookUrlChange(e.target.value)}
+                placeholder="facebook.com/yourpage"
                 className="input"
                 required
               />
-              <p className="mt-1 text-sm text-gray-500">Link to your Facebook profile or page</p>
+              <p className="mt-1 text-sm text-gray-500">https:// will be added automatically</p>
             </div>
           </div>
         );
 
       case 'instagram':
+        const handleInstagramUrlChange = (value) => {
+          let url = value.trim();
+          if (url && !url.match(/^https?:\/\//i)) {
+            url = 'https://' + url;
+          }
+          handleChange('url', url);
+        };
+        
         return (
           <div className="space-y-4">
             {nameField}
@@ -118,12 +163,13 @@ const ContentForm = ({ qrType, content, onChange, shortCode, onCopyShortUrl, cop
               <input
                 type="url"
                 value={formData.url || ''}
-                onChange={(e) => handleChange('url', e.target.value)}
-                placeholder="https://instagram.com/yourusername"
+                onChange={(e) => handleInstagramUrlChange(e.target.value)}
+                onBlur={(e) => handleInstagramUrlChange(e.target.value)}
+                placeholder="instagram.com/yourusername"
                 className="input"
                 required
               />
-              <p className="mt-1 text-sm text-gray-500">Link to your Instagram profile</p>
+              <p className="mt-1 text-sm text-gray-500">https:// will be added automatically</p>
             </div>
           </div>
         );
