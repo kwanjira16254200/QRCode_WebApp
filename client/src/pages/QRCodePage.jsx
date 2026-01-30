@@ -170,7 +170,7 @@ END:VCARD`;
         }
       }
 
-      await api.post('/links', {
+      const response = await api.post('/links', {
         title: content.name || `${qrType.toUpperCase()} QR Code`,
         originalUrl: qrValue,
         isDynamic: true,
@@ -180,7 +180,8 @@ END:VCARD`;
       });
 
       alert('QR Code saved successfully!');
-      navigate('/dashboard');
+      // Redirect to edit page so user can see and download the final QR code
+      navigate(`/edit/${response.data._id}`);
     } catch (error) {
       console.error('Error saving QR:', error);
       alert('Error saving QR Code: ' + (error.response?.data?.message || error.message));

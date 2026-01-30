@@ -30,20 +30,25 @@ const EditLink = () => {
       errorCorrectionLevel: 'H'
     },
     dotsOptions: {
-      color: '#000000',
-      type: 'rounded'
+      color: link?.designSettings?.fgColor || '#000000',
+      type: link?.designSettings?.dotStyle || 'square'
     },
     cornersSquareOptions: {
-      color: '#000000',
-      type: 'extra-rounded'
+      color: link?.designSettings?.fgColor || '#000000',
+      type: link?.designSettings?.cornerStyle || 'square'
     },
     cornersDotOptions: {
-      color: '#000000',
+      color: link?.designSettings?.fgColor || '#000000',
       type: 'dot'
     },
     backgroundOptions: {
-      color: '#ffffff',
-    }
+      color: link?.designSettings?.bgColor || '#ffffff',
+    },
+    imageOptions: {
+      crossOrigin: 'anonymous',
+      margin: 10
+    },
+    image: link?.designSettings?.logo || undefined
   };
 
   const { qrCodeRef, download } = useQRCode(qrOptions);
