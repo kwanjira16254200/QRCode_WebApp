@@ -1,10 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Save, Copy, Check, Download } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Copy, Check, Download, ExternalLink } from 'lucide-react';
 import api from '../utils/api';
 import ContentForm from '../components/qr-generator/ContentForm';
 import DesignCustomizer from '../components/qr-generator/DesignCustomizer';
 import QRPreview from '../components/qr-generator/QRPreview';
+import StepIndicator from '../components/qr-generator/StepIndicator';
+
+const steps = [
+  { title: 'Edit Content', description: 'Update information' },
+  { title: 'Customize Design', description: 'Style your QR' },
+  { title: 'Save & Download', description: 'Get your QR code' },
+];
 
 const EditQRCodePage = () => {
   const { id } = useParams();
@@ -19,11 +26,13 @@ const EditQRCodePage = () => {
   const [shortCode, setShortCode] = useState('');
   const [design, setDesign] = useState({
     frame: 'none',
-    pattern: 'square',
+    dotStyle: 'square',
+    cornerStyle: 'square',
     fgColor: '#000000',
     bgColor: '#ffffff',
     logo: null,
   });
+  const [linkData, setLinkData] = useState(null);
 
   useEffect(() => {
     fetchQRCode();
@@ -32,6 +41,7 @@ const EditQRCodePage = () => {
   const fetchQRCode = async () => {
     try {
       const { data } = await api.get(`/links/${id}`);
+      setLinkData(data);
       
       // Set QR type
       setQrType(data.qrType || 'url');
@@ -195,27 +205,7 @@ END:VCARD`;
         </div>
 
         {/* Step Indicator */}
-        <div className="max-w-4xl mx-auto mb-8">
-          <div className="flex items-center justify-center space-x-4">
-            <div className={`flex items-center space-x-2 ${currentStep === 1 ? 'text-primary-600' : 'text-gray-400'}`}>
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                currentStep === 1 ? 'bg-primary-600 text-white' : 'bg-gray-200'
-              }`}>
-                1
-              </div>
-              <span className="font-medium">Edit Content</span>
-            </div>
-            <div className="w-16 h-0.5 bg-gray-300"></div>
-            <div className={`flex items-center space-x-2 ${currentStep === 2 ? 'text-primary-600' : 'text-gray-400'}`}>
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                currentStep === 2 ? 'bg-primary-600 text-white' : 'bg-gray-200'
-              }`}>
-                2
-              </div>
-              <span className="font-medium">Customize Design</span>
-            </div>
-          </div>
-        </div>
+        <StepIndicator steps={steps} currentStep={currentStep} />
 
         {/* Content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -229,8 +219,59 @@ END:VCARD`;
                 onCopyShortUrl={copyShortUrl}
                 copied={copied}
               />
-            ) : (
+            ) : currentStep === 2 ? (
               <DesignCustomizer design={design} onChange={setDesign} />
+            ) : (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Save & Download</h2>
+                
+                <div className="space-y-4">
+                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm text-blue-800">
+                      ✓ Your QR code is ready! You can download it or save your changes.
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <button
+                      onClick={downloadQR}
+                      className="w-full btn btn-primary flex items-center justify-center space-x-2"
+                    >
+                      <Download className="w-5 h-5" />
+                      <span>Download QR Code</span>
+                    </button>
+
+                    <button
+                      onClick={handleSave}
+                      disabled={saving}
+                      className="w-full btn btn-secondary flex items-center justify-center space-x-2"
+                    >
+                      <Save className="w-5 h-5" />
+                      <span>{saving ? 'Saving...' : 'Save Changes'}</span>
+                    </button>
+
+                    <a
+                      href={`${window.location.origin}/r/${shortCode}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full btn btn-secondary flex items-center justify-center space-x-2"
+                    >
+                      <ExternalLink className="w-5 h-5" />
+                      <span>Test Link</span>
+                    </a>
+                  </div>
+
+                  {linkData && (
+                    <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                      <p className="text-sm text-gray-600 mb-2">Statistics</p>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Total Clicks</span>
+                        <span className="text-2xl font-bold text-primary-600">{linkData.clicks || 0}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             )}
           </div>
           <QRPreview value={getQRValue()} design={design} />
@@ -238,50 +279,22 @@ END:VCARD`;
 
         {/* Navigation Buttons */}
         <div className="max-w-4xl mx-auto px-4 mt-8 flex justify-between">
-          {currentStep === 1 ? (
-            <>
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="btn btn-secondary flex items-center space-x-2"
-              >
-                <ArrowLeft className="w-5 h-5" />
-                <span>Cancel</span>
-              </button>
-              <button
-                onClick={() => setCurrentStep(2)}
-                className="btn btn-primary flex items-center space-x-2"
-              >
-                <span>Next: Customize</span>
-                <ArrowRight className="w-5 h-5" />
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => setCurrentStep(1)}
-                className="btn btn-secondary flex items-center space-x-2"
-              >
-                <ArrowLeft className="w-5 h-5" />
-                <span>Back</span>
-              </button>
-              <div className="flex items-center space-x-3">
-                <button
-                  onClick={downloadQR}
-                  className="btn btn-secondary flex items-center space-x-2"
-                >
-                  <Download className="w-5 h-5" />
-                  <span>Download QR</span>
-                </button>
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="btn btn-primary flex items-center space-x-2"
-                >
-                  <Save className="w-5 h-5" />
-                  <span>{saving ? 'Saving...' : 'Save Changes'}</span>
-                </button>
-              </div>
-            </>
+          <button
+            onClick={() => currentStep > 1 ? setCurrentStep(currentStep - 1) : navigate('/dashboard')}
+            className="btn btn-secondary flex items-center space-x-2"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span>{currentStep === 1 ? 'Cancel' : 'Back'}</span>
+          </button>
+          
+          {currentStep < 3 && (
+            <button
+              onClick={() => setCurrentStep(currentStep + 1)}
+              className="btn btn-primary flex items-center space-x-2"
+            >
+              <span>Next</span>
+              <ArrowRight className="w-5 h-5" />
+            </button>
           )}
         </div>
       </div>

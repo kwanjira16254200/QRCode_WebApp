@@ -46,11 +46,11 @@ const QRPreview = ({ value, design }) => {
     },
     dotsOptions: {
       color: design.fgColor || '#000000',
-      type: design.dotStyle || 'rounded'
+      type: design.dotStyle || 'square'
     },
     cornersSquareOptions: {
       color: design.fgColor || '#000000',
-      type: design.cornerStyle || 'extra-rounded'
+      type: design.cornerStyle || 'square'
     },
     cornersDotOptions: {
       color: design.fgColor || '#000000',
