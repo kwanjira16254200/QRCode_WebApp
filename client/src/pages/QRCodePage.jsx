@@ -23,9 +23,9 @@ export default function QRCodePage() {
   const [qrType, setQrType] = useState('');
   const [content, setContent] = useState({});
   const [design, setDesign] = useState({
-    frame: 'square',
-    dotStyle: 'rounded',
-    cornerStyle: 'extra-rounded',
+    frame: 'none',
+    dotStyle: 'square',
+    cornerStyle: 'square',
     fgColor: '#000000',
     bgColor: '#ffffff',
     logo: null,

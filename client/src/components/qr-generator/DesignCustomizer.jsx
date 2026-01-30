@@ -109,30 +109,30 @@ const DesignCustomizer = ({ design, onChange }) => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">QR Pattern (Dot Style)</label>
               <select
-                value={design.dotStyle || 'rounded'}
+                value={design.dotStyle || 'square'}
                 onChange={(e) => handleChange('dotStyle', e.target.value)}
                 className="w-full border-2 border-gray-200 rounded-lg p-3 hover:border-gray-300 focus:border-orange-500 focus:outline-none"
               >
-                <option value="square">Square (จุดสี่เหลี่ยม)</option>
-                <option value="dots">Dots (จุดกลม)</option>
-                <option value="rounded">Rounded (จุดมุมมน)</option>
-                <option value="extra-rounded">Extra Rounded (จุดมุมมนมาก)</option>
-                <option value="classy">Classy (สไตล์หรูหรา)</option>
-                <option value="classy-rounded">Classy Rounded (หรูหราแบบมุมมน)</option>
+                <option value="square">Square</option>
+                <option value="dots">Dots</option>
+                <option value="rounded">Rounded</option>
+                <option value="extra-rounded">Extra Rounded</option>
+                <option value="classy">Classy</option>
+                <option value="classy-rounded">Classy Rounded</option>
               </select>
             </div>
 
             {/* Corner Style */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Corner Style (รูปแบบมุม)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Corner Style</label>
               <select
-                value={design.cornerStyle || 'extra-rounded'}
+                value={design.cornerStyle || 'square'}
                 onChange={(e) => handleChange('cornerStyle', e.target.value)}
                 className="w-full border-2 border-gray-200 rounded-lg p-3 hover:border-gray-300 focus:border-orange-500 focus:outline-none"
               >
-                <option value="square">Square (มุมสี่เหลี่ยม)</option>
-                <option value="extra-rounded">Extra Rounded (มุมมนมาก)</option>
-                <option value="dot">Dot (มุมแบบจุด)</option>
+                <option value="square">Square</option>
+                <option value="extra-rounded">Extra Rounded</option>
+                <option value="dot">Dot</option>
               </select>
             </div>
           </div>
