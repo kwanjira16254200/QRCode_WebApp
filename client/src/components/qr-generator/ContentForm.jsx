@@ -428,65 +428,116 @@ const ContentForm = ({ qrType, content, onChange, shortCode, onCopyShortUrl, cop
         );
 
       case 'image':
-        const imageUrls = formData.imageUrls || [''];
+        const imageFiles = formData.imageFiles || [];
+        const MAX_TOTAL_SIZE = 10 * 1024 * 1024; // 10MB in bytes
         
-        const handleAddImageUrl = () => {
-          if (imageUrls.length < 7) {
-            handleChange('imageUrls', [...imageUrls, '']);
+        // Calculate total size of all files
+        const totalSize = imageFiles.reduce((sum, file) => sum + file.size, 0);
+        const totalSizeMB = (totalSize / (1024 * 1024)).toFixed(2);
+        
+        const handleFileSelect = (e) => {
+          const files = Array.from(e.target.files);
+          const currentFiles = formData.imageFiles || [];
+          
+          // Calculate current total size
+          const currentSize = currentFiles.reduce((sum, file) => sum + file.size, 0);
+          
+          // Calculate new files size
+          const newFilesSize = files.reduce((sum, file) => sum + file.size, 0);
+          
+          // Check if adding new files exceeds 10MB
+          if (currentSize + newFilesSize > MAX_TOTAL_SIZE) {
+            const remainingMB = ((MAX_TOTAL_SIZE - currentSize) / (1024 * 1024)).toFixed(2);
+            alert(`Total file size cannot exceed 10MB. You have ${remainingMB}MB remaining.`);
+            e.target.value = '';
+            return;
           }
+          
+          if (files.length > 0) {
+            handleChange('imageFiles', [...currentFiles, ...files]);
+          }
+          
+          // Reset input
+          e.target.value = '';
         };
         
-        const handleImageUrlChange = (index, value) => {
-          const newUrls = [...imageUrls];
-          newUrls[index] = value;
-          handleChange('imageUrls', newUrls);
-        };
-        
-        const handleRemoveImageUrl = (index) => {
-          const newUrls = imageUrls.filter((_, i) => i !== index);
-          handleChange('imageUrls', newUrls.length > 0 ? newUrls : ['']);
+        const handleRemoveFile = (index) => {
+          const newFiles = imageFiles.filter((_, i) => i !== index);
+          handleChange('imageFiles', newFiles);
         };
         
         return (
           <div className="space-y-4">
             {nameField}
             
-            {/* Image URL Section */}
+            {/* File Upload Section */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Image URLs (Max 7 links)
+                Upload Images (Max 10MB total)
               </label>
-              <p className="text-sm text-gray-500 mb-3">
-                Add multiple image URLs to create a gallery. Users can view all images when they scan the QR code.
-              </p>
-              {imageUrls.map((url, index) => (
-                <div key={index} className="flex items-center space-x-2 mb-2">
-                  <input
-                    type="url"
-                    value={url}
-                    onChange={(e) => handleImageUrlChange(index, e.target.value)}
-                    placeholder="https://example.com/image.jpg"
-                    className="input flex-1"
-                  />
-                  {imageUrls.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveImageUrl(index)}
-                      className="px-3 py-2 text-red-500 hover:text-red-700"
-                    >
-                      ✕
-                    </button>
-                  )}
+              
+              {/* Size indicator */}
+              <div className="mb-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">Total size: {totalSizeMB} MB / 10 MB</span>
+                  <span className={`font-medium ${totalSize > MAX_TOTAL_SIZE * 0.9 ? 'text-red-600' : 'text-green-600'}`}>
+                    {imageFiles.length} image{imageFiles.length !== 1 ? 's' : ''}
+                  </span>
                 </div>
-              ))}
-              {imageUrls.length < 7 && (
-                <button
-                  type="button"
-                  onClick={handleAddImageUrl}
-                  className="mt-2 text-sm text-orange-600 hover:text-orange-700"
-                >
-                  + Add another image URL
-                </button>
+                <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                  <div 
+                    className={`h-2 rounded-full transition-all ${
+                      totalSize > MAX_TOTAL_SIZE * 0.9 ? 'bg-red-500' : 
+                      totalSize > MAX_TOTAL_SIZE * 0.7 ? 'bg-yellow-500' : 'bg-green-500'
+                    }`}
+                    style={{ width: `${Math.min((totalSize / MAX_TOTAL_SIZE) * 100, 100)}%` }}
+                  />
+                </div>
+              </div>
+              
+              {/* Upload Button */}
+              {totalSize < MAX_TOTAL_SIZE && (
+                <div className="mb-4">
+                  <label className="btn btn-secondary cursor-pointer inline-flex items-center">
+                    <span>Choose Images</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
+                  </label>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Select images (JPG, PNG, GIF). Remaining: {((MAX_TOTAL_SIZE - totalSize) / (1024 * 1024)).toFixed(2)} MB
+                  </p>
+                </div>
+              )}
+              
+              {/* Preview Selected Files */}
+              {imageFiles.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {imageFiles.map((file, index) => (
+                    <div key={index} className="relative group">
+                      <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                        <img
+                          src={URL.createObjectURL(file)}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveFile(index)}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
+                      >
+                        ✕
+                      </button>
+                      <p className="text-xs text-gray-600 mt-1 truncate">{file.name}</p>
+                      <p className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</p>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           </div>
