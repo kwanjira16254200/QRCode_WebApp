@@ -9,6 +9,7 @@ import EditLink from './pages/EditLink';
 import EditQRCodePage from './pages/EditQRCodePage';
 import Analytics from './pages/Analytics';
 import QRCodePage from './pages/QRCodePage';
+import Gallery from './pages/Gallery';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/qr-generator" element={<QRCodePage />} />
+            <Route path="/gallery/:id" element={<Gallery />} />
             <Route
               path="/dashboard"
               element={

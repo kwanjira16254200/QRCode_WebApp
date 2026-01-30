@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.js';
 import linkRoutes from './routes/links.js';
 import redirectRoutes from './routes/redirect.js';
 import validateRoutes from './routes/validate.js';
+import galleryRoutes from './routes/galleryRoutes.js';
 
 dotenv.config();
 
@@ -69,6 +70,7 @@ testSupabaseConnection();
 app.use('/api/auth', authRoutes);
 app.use('/api/links', linkRoutes);
 app.use('/api/validate', validateRoutes);
+app.use('/api/galleries', galleryRoutes);
 app.use('/s', redirectRoutes);
 
 app.get('/api/health', (req, res) => {

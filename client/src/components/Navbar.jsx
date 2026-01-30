@@ -15,9 +15,13 @@ const Navbar = () => {
     <nav className="bg-white shadow-sm border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link to="/" className="flex items-center space-x-2">
-            <QrCode className="w-8 h-8 text-primary-600" />
-            <span className="text-xl font-bold text-gray-900">QR Code Generator</span>
+          <Link to="/" className="flex items-center space-x-3">
+            <img 
+              src="https://in2it-service.com/IN2IT/logo/Logo.svg" 
+              alt="IN2IT Logo" 
+              className="h-10 w-auto"
+            />
+            <span className="text-xl font-bold text-gray-900">IN2 QR Code Generate</span>
           </Link>
 
           <div className="flex items-center space-x-4">

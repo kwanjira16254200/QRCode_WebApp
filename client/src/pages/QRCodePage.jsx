@@ -31,7 +31,7 @@ export default function QRCodePage() {
     logo: null,
   });
 
-  const getQRValue = () => {
+  const getQRValue = async () => {
     if (!qrType || !content) return '';
 
     switch (qrType) {
@@ -41,9 +41,10 @@ export default function QRCodePage() {
       case 'instagram':
         return content.url || '';
       case 'image':
-        // For image QR, return first URL
-        if (content.imageUrls && content.imageUrls.length > 0 && content.imageUrls[0]) {
-          return content.imageUrls[0];
+        // For image QR with files, we'll handle this in handleSaveDynamic
+        // This is just for preview - return placeholder
+        if (content.imageFiles && content.imageFiles.length > 0) {
+          return 'Gallery QR Code (will be generated after upload)';
         }
         return '';
       case 'video':
@@ -94,9 +95,9 @@ END:VCARD`;
       
       // Special validation for image and video types
       if (qrType === 'image') {
-        const hasImageUrls = content.imageUrls && content.imageUrls.some(url => url && url.trim());
-        if (!hasImageUrls) {
-          alert('Please add at least one image URL');
+        const hasImageFiles = content.imageFiles && content.imageFiles.length > 0;
+        if (!hasImageFiles) {
+          alert('Please upload at least one image');
           return;
         }
       } else if (qrType === 'video') {
@@ -126,7 +127,29 @@ END:VCARD`;
 
   const handleSaveDynamic = async () => {
     try {
-      const qrValue = getQRValue();
+      let qrValue = await getQRValue();
+      
+      // Special handling for image QR with file uploads
+      if (qrType === 'image' && content.imageFiles && content.imageFiles.length > 0) {
+        // Import uploadMultipleImages dynamically
+        const { uploadMultipleImages } = await import('../utils/supabaseStorage');
+        const { useAuth } = await import('../context/AuthContext');
+        
+        // Get user ID (you'll need to pass this from context)
+        const userId = localStorage.getItem('userId') || 'anonymous';
+        
+        // Upload images to Supabase Storage
+        const imageUrls = await uploadMultipleImages(content.imageFiles, userId);
+        
+        // Create gallery
+        const galleryResponse = await api.post('/galleries', {
+          title: content.name || 'Image Gallery',
+          images: imageUrls
+        });
+        
+        // Update QR value to point to gallery
+        qrValue = `${window.location.origin}/gallery/${galleryResponse.data.id}`;
+      }
 
       await api.post('/links', {
         title: content.name || `${qrType.toUpperCase()} QR Code`,
@@ -141,6 +164,7 @@ END:VCARD`;
       navigate('/dashboard');
     } catch (error) {
       console.error('Error saving QR:', error);
+      alert('Error saving QR Code: ' + (error.response?.data?.message || error.message));
       throw error;
     }
   };
