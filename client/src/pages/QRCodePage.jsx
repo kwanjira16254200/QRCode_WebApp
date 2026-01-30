@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import StepIndicator from '../components/qr-generator/StepIndicator';
@@ -30,6 +30,19 @@ export default function QRCodePage() {
     bgColor: '#ffffff',
     logo: null,
   });
+  const [previewGalleryUrl, setPreviewGalleryUrl] = useState('');
+
+  // Generate preview URL for image QR when files are uploaded
+  useEffect(() => {
+    if (qrType === 'image' && content.imageFiles && content.imageFiles.length > 0) {
+      // Generate a temporary preview URL
+      const tempId = Math.random().toString(36).substring(7);
+      const previewUrl = `${window.location.origin}/gallery/${tempId}`;
+      setPreviewGalleryUrl(previewUrl);
+    } else {
+      setPreviewGalleryUrl('');
+    }
+  }, [qrType, content.imageFiles]);
 
   const getQRValue = () => {
     if (!qrType || !content) return '';
@@ -41,7 +54,11 @@ export default function QRCodePage() {
       case 'instagram':
         return content.url || '';
       case 'image':
-        // For image QR with files, show preview message
+        // For image QR with files, use preview gallery URL if available
+        if (previewGalleryUrl) {
+          return previewGalleryUrl;
+        }
+        // Show placeholder if no preview URL yet
         if (content.imageFiles && content.imageFiles.length > 0) {
           return 'QR Code will be generated after saving';
         }
