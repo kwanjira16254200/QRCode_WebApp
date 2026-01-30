@@ -428,81 +428,65 @@ const ContentForm = ({ qrType, content, onChange, shortCode, onCopyShortUrl, cop
         );
 
       case 'image':
-        const imageFiles = formData.imageFiles || [];
+        const imageUrls = formData.imageUrls || [''];
         
-        const handleFileSelect = (e) => {
-          const files = Array.from(e.target.files);
-          const currentFiles = formData.imageFiles || [];
-          
-          // Limit to 7 files total
-          const remainingSlots = 7 - currentFiles.length;
-          const filesToAdd = files.slice(0, remainingSlots);
-          
-          if (filesToAdd.length > 0) {
-            handleChange('imageFiles', [...currentFiles, ...filesToAdd]);
+        const handleAddImageUrl = () => {
+          if (imageUrls.length < 7) {
+            handleChange('imageUrls', [...imageUrls, '']);
           }
-          
-          // Reset input
-          e.target.value = '';
         };
         
-        const handleRemoveFile = (index) => {
-          const newFiles = imageFiles.filter((_, i) => i !== index);
-          handleChange('imageFiles', newFiles);
+        const handleImageUrlChange = (index, value) => {
+          const newUrls = [...imageUrls];
+          newUrls[index] = value;
+          handleChange('imageUrls', newUrls);
+        };
+        
+        const handleRemoveImageUrl = (index) => {
+          const newUrls = imageUrls.filter((_, i) => i !== index);
+          handleChange('imageUrls', newUrls.length > 0 ? newUrls : ['']);
         };
         
         return (
           <div className="space-y-4">
             {nameField}
             
-            {/* File Upload Section */}
+            {/* Image URL Section */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Upload Images (Max 7 images)
+                Image URLs (Max 7 links)
               </label>
-              
-              {/* Upload Button */}
-              {imageFiles.length < 7 && (
-                <div className="mb-4">
-                  <label className="btn btn-secondary cursor-pointer inline-flex items-center">
-                    <span>Choose Images</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleFileSelect}
-                      className="hidden"
-                    />
-                  </label>
-                  <p className="mt-2 text-sm text-gray-500">
-                    Select up to {7 - imageFiles.length} more image{7 - imageFiles.length !== 1 ? 's' : ''} (JPG, PNG, GIF, max 5MB each)
-                  </p>
+              <p className="text-sm text-gray-500 mb-3">
+                Add multiple image URLs to create a gallery. Users can view all images when they scan the QR code.
+              </p>
+              {imageUrls.map((url, index) => (
+                <div key={index} className="flex items-center space-x-2 mb-2">
+                  <input
+                    type="url"
+                    value={url}
+                    onChange={(e) => handleImageUrlChange(index, e.target.value)}
+                    placeholder="https://example.com/image.jpg"
+                    className="input flex-1"
+                  />
+                  {imageUrls.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImageUrl(index)}
+                      className="px-3 py-2 text-red-500 hover:text-red-700"
+                    >
+                      ✕
+                    </button>
+                  )}
                 </div>
-              )}
-              
-              {/* Preview Selected Files */}
-              {imageFiles.length > 0 && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {imageFiles.map((file, index) => (
-                    <div key={index} className="relative group">
-                      <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                        <img
-                          src={URL.createObjectURL(file)}
-                          alt={`Preview ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveFile(index)}
-                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
-                      >
-                        ✕
-                      </button>
-                      <p className="text-xs text-gray-600 mt-1 truncate">{file.name}</p>
-                    </div>
-                  ))}
-                </div>
+              ))}
+              {imageUrls.length < 7 && (
+                <button
+                  type="button"
+                  onClick={handleAddImageUrl}
+                  className="mt-2 text-sm text-orange-600 hover:text-orange-700"
+                >
+                  + Add another image URL
+                </button>
               )}
             </div>
           </div>

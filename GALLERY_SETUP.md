@@ -79,18 +79,49 @@ COMMENT ON TABLE galleries IS 'Stores image galleries for QR codes with multiple
 COMMENT ON COLUMN galleries.images IS 'Array of image URLs stored as JSONB';
 ```
 
-## Step 3: Add Environment Variables (if needed)
+## Step 3: Add Environment Variables (REQUIRED!)
 
-Make sure your `.env` files have Supabase credentials:
+**⚠️ IMPORTANT:** You MUST add Supabase credentials to your client environment files, otherwise image upload will fail with "supabaseUrl is required" error.
 
-### Client (.env in /client)
-```
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+### Get Your Supabase Credentials
+
+1. Go to your Supabase Dashboard: https://app.supabase.com
+2. Select your project
+3. Go to **Settings** → **API**
+4. Copy these values:
+   - **Project URL** (e.g., `https://xxxxx.supabase.co`)
+   - **anon public key** (starts with `eyJhbGci...`)
+
+### Client Environment Files
+
+You need to add Supabase credentials to BOTH files:
+
+#### `/client/.env.development`
+```env
+# Development Environment Variables
+VITE_API_URL=http://localhost:5000
+
+# Supabase Configuration (Required for Gallery feature)
+VITE_SUPABASE_URL=https://your-project-id.supabase.co
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key-here
 ```
 
-### Server (.env in /server)
+#### `/client/.env.production`
+```env
+# Production Environment Variables
+VITE_API_URL=https://your-backend-url.vercel.app
+
+# Supabase Configuration (Required for Gallery feature)
+VITE_SUPABASE_URL=https://your-project-id.supabase.co
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key-here
 ```
+
+**Replace:**
+- `your-project-id.supabase.co` with your actual Supabase Project URL
+- `your-supabase-anon-key-here` with your actual anon public key
+
+### Server Environment (if using server-side operations)
+```env
 SUPABASE_URL=your_supabase_url
 SUPABASE_SERVICE_KEY=your_supabase_service_key
 ```

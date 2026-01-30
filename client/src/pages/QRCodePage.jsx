@@ -41,10 +41,9 @@ export default function QRCodePage() {
       case 'instagram':
         return content.url || '';
       case 'image':
-        // For image QR with files, we'll handle this in handleSaveDynamic
-        // This is just for preview - return placeholder
-        if (content.imageFiles && content.imageFiles.length > 0) {
-          return 'https://placeholder.com/gallery-preview';
+        // For image QR with multiple URLs, return first URL for preview
+        if (content.imageUrls && content.imageUrls.length > 0 && content.imageUrls[0]) {
+          return content.imageUrls[0];
         }
         return '';
       case 'video':
@@ -95,9 +94,9 @@ END:VCARD`;
       
       // Special validation for image and video types
       if (qrType === 'image') {
-        const hasImageFiles = content.imageFiles && content.imageFiles.length > 0;
-        if (!hasImageFiles) {
-          alert('Please upload at least one image');
+        const hasImageUrls = content.imageUrls && content.imageUrls.some(url => url && url.trim());
+        if (!hasImageUrls) {
+          alert('Please add at least one image URL');
           return;
         }
       } else if (qrType === 'video') {
@@ -129,26 +128,22 @@ END:VCARD`;
     try {
       let qrValue = getQRValue();
       
-      // Special handling for image QR with file uploads
-      if (qrType === 'image' && content.imageFiles && content.imageFiles.length > 0) {
-        // Import uploadMultipleImages dynamically
-        const { uploadMultipleImages } = await import('../utils/supabaseStorage');
-        const { useAuth } = await import('../context/AuthContext');
+      // Special handling for image QR with multiple URLs - create gallery
+      if (qrType === 'image' && content.imageUrls && content.imageUrls.length > 1) {
+        // Filter out empty URLs
+        const validUrls = content.imageUrls.filter(url => url && url.trim());
         
-        // Get user ID (you'll need to pass this from context)
-        const userId = localStorage.getItem('userId') || 'anonymous';
-        
-        // Upload images to Supabase Storage
-        const imageUrls = await uploadMultipleImages(content.imageFiles, userId);
-        
-        // Create gallery
-        const galleryResponse = await api.post('/galleries', {
-          title: content.name || 'Image Gallery',
-          images: imageUrls
-        });
-        
-        // Update QR value to point to gallery
-        qrValue = `${window.location.origin}/gallery/${galleryResponse.data.id}`;
+        if (validUrls.length > 1) {
+          // Create gallery with multiple images
+          const galleryResponse = await api.post('/galleries', {
+            title: content.name || 'Image Gallery',
+            images: validUrls
+          });
+          
+          // Update QR value to point to gallery
+          qrValue = `${window.location.origin}/gallery/${galleryResponse.data.id}`;
+        }
+        // If only 1 URL, use it directly (already set in qrValue from getQRValue)
       }
 
       await api.post('/links', {
