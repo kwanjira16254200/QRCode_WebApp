@@ -13,6 +13,10 @@
       "destination": "/api/s/[shortCode]"
     },
     {
+      "source": "/gallery/:id",
+      "destination": "/api/gallery/[id]"
+    },
+    {
       "source": "/api/:path*",
       "destination": "/api/index"
     }
