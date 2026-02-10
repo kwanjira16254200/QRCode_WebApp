@@ -6,7 +6,10 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import EditLink from './pages/EditLink';
+import EditQRCodePage from './pages/EditQRCodePage';
 import Analytics from './pages/Analytics';
+import QRCodePage from './pages/QRCodePage';
+import Gallery from './pages/Gallery';
 
 function App() {
   return (
@@ -17,6 +20,8 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/qr-generator" element={<QRCodePage />} />
+            <Route path="/gallery/:id" element={<Gallery />} />
             <Route
               path="/dashboard"
               element={
@@ -34,6 +39,14 @@ function App() {
               }
             />
             <Route
+              path="/edit/:id"
+              element={
+                <PrivateRoute>
+                  <EditQRCodePage />
+                </PrivateRoute>
+              }
+            />
+            <Route
               path="/analytics/:id"
               element={
                 <PrivateRoute>
@@ -41,7 +54,7 @@ function App() {
                 </PrivateRoute>
               }
             />
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/" element={<Navigate to="/qr-generator" replace />} />
           </Routes>
         </div>
       </Router>

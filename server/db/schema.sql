@@ -16,6 +16,10 @@ CREATE TABLE IF NOT EXISTS links (
   short_code VARCHAR(50) UNIQUE NOT NULL,
   clicks INTEGER DEFAULT 0,
   is_active BOOLEAN DEFAULT true,
+  is_dynamic BOOLEAN DEFAULT true,
+  qr_type VARCHAR(50) DEFAULT 'url',
+  content JSONB,
+  design_settings JSONB DEFAULT '{"frame": "none", "pattern": "square", "fgColor": "#000000", "bgColor": "#ffffff", "logo": null}'::jsonb,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

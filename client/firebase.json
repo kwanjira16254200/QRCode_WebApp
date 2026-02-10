@@ -1,0 +1,30 @@
+{
+  "hosting": {
+    "public": "dist",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/r/**",
+        "function": {
+          "functionId": "redirect",
+          "region": "us-central1"
+        }
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
+    "redirects": [
+      {
+        "source": "/r/:shortCode",
+        "destination": "https://qr-code-web-33iwisc9p-qr-code-web-apps-projects.vercel.app/r/:shortCode",
+        "type": 302
+      }
+    ]
+  }
+}

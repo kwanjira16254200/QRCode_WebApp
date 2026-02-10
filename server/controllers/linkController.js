@@ -3,29 +3,50 @@ import { supabase } from '../config/supabase.js';
 
 export const createLink = async (req, res) => {
   try {
-    const { title, originalUrl, isDynamic = true } = req.body;
+    const { title, originalUrl, isDynamic = true, qrType = 'url', content, designSettings } = req.body;
+
+    console.log('Backend received designSettings:', designSettings);
 
     if (!title || !originalUrl) {
       return res.status(400).json({ message: 'Title and URL are required' });
     }
 
+    // Validate qrType
+    const validTypes = ['url', 'pdf', 'video', 'image', 'facebook', 'instagram', 'whatsapp', 'text', 'email', 'phone', 'sms', 'wifi', 'vcard', 'location'];
+    if (!validTypes.includes(qrType)) {
+      return res.status(400).json({ message: 'Invalid QR type' });
+    }
+
     const shortCode = nanoid(8);
+
+    // Prepare insert data
+    const insertData = {
+      user_id: req.user.id,
+      title,
+      original_url: originalUrl,
+      short_code: shortCode,
+      is_dynamic: isDynamic,
+      qr_type: qrType,
+      content: content || null,
+      design_settings: designSettings || null
+    };
+
+    console.log('Inserting data with design_settings:', insertData.design_settings);
 
     const { data: link, error } = await supabase
       .from('links')
-      .insert([{
-        user_id: req.user.id,
-        title,
-        original_url: originalUrl,
-        short_code: shortCode,
-        is_dynamic: isDynamic
-      }])
+      .insert([insertData])
       .select()
       .single();
 
     if (error) {
       console.error('Supabase error:', error);
-      return res.status(500).json({ message: 'Server error' });
+      console.error('Error details:', JSON.stringify(error, null, 2));
+      return res.status(500).json({ 
+        message: 'Server error', 
+        error: error.message,
+        hint: error.hint 
+      });
     }
 
     res.status(201).json({
@@ -36,6 +57,9 @@ export const createLink = async (req, res) => {
       clicks: link.clicks,
       isActive: link.is_active,
       isDynamic: link.is_dynamic,
+      qrType: link.qr_type,
+      content: link.content,
+      designSettings: link.design_settings,
       createdAt: link.created_at
     });
   } catch (error) {
@@ -65,6 +89,9 @@ export const getLinks = async (req, res) => {
       clicks: link.clicks,
       isActive: link.is_active,
       isDynamic: link.is_dynamic,
+      qrType: link.qr_type || 'url',
+      content: link.content,
+      designSettings: link.design_settings,
       createdAt: link.created_at,
       updatedAt: link.updated_at
     }));
@@ -97,6 +124,9 @@ export const getLink = async (req, res) => {
       clicks: link.clicks,
       isActive: link.is_active,
       isDynamic: link.is_dynamic,
+      qrType: link.qr_type,
+      content: link.content,
+      designSettings: link.design_settings,
       createdAt: link.created_at,
       updatedAt: link.updated_at
     });
@@ -108,7 +138,7 @@ export const getLink = async (req, res) => {
 
 export const updateLink = async (req, res) => {
   try {
-    const { title, originalUrl, isActive } = req.body;
+    const { title, originalUrl, isActive, qrType, content, designSettings } = req.body;
 
     // ตรวจสอบว่า link เป็น dynamic หรือไม่
     const { data: existingLink } = await supabase
@@ -133,6 +163,9 @@ export const updateLink = async (req, res) => {
     if (title) updateData.title = title;
     if (originalUrl) updateData.original_url = originalUrl;
     if (typeof isActive !== 'undefined') updateData.is_active = isActive;
+    if (qrType) updateData.qr_type = qrType;
+    if (content) updateData.content = content;
+    if (designSettings) updateData.design_settings = designSettings;
     updateData.updated_at = new Date().toISOString();
 
     const { data: link, error } = await supabase
@@ -155,6 +188,9 @@ export const updateLink = async (req, res) => {
       clicks: link.clicks,
       isActive: link.is_active,
       isDynamic: link.is_dynamic,
+      qrType: link.qr_type,
+      content: link.content,
+      designSettings: link.design_settings,
       createdAt: link.created_at,
       updatedAt: link.updated_at
     });
